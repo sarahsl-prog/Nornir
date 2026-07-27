@@ -76,5 +76,7 @@ class TestUrgencyScore:
         assert urgency_score(make_task(Priority.LOW, TODAY), TODAY) == 14.0
 
     def test_far_future_due_adds_nothing(self) -> None:
-        far = urgency_score(make_task(Priority.NORMAL, TODAY + timedelta(days=60)), TODAY)
+        far = urgency_score(
+            make_task(Priority.NORMAL, TODAY + timedelta(days=60)), TODAY
+        )
         assert far == 50.0
