@@ -23,6 +23,7 @@ from nornir.db.task_repo import TaskRepo
 from nornir.domain.models import Category, Task, TaskStatus
 from nornir.domain.urgency import due_state
 from nornir.ui.events import EventBus
+from nornir.ui.theming import due_state_icon
 
 #: Custom roles for delegates and tests.
 TASK_ID_ROLE = int(Qt.ItemDataRole.UserRole)
@@ -127,6 +128,9 @@ class TaskTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.DecorationRole and index.column() == COL_CATEGORY:
             category = self._by_category.get(task.category_id)
             return QColor(category.color) if category else None
+        if role == Qt.ItemDataRole.DecorationRole and index.column() == COL_TITLE:
+            # overdue / due-soon status dot, consistent across all views
+            return due_state_icon(due_state(task.due_date, date.today()))
         if role == TASK_ID_ROLE:
             return task.id
         if role == DUE_STATE_ROLE:
