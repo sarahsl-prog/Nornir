@@ -112,12 +112,13 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 1 — Data Layer
 
 ### 1.1 Domain model & enums
-- [ ] `src/nornir/domain/models.py` — frozen dataclasses: `Category`, `Task`,
+- [x] `src/nornir/domain/models.py` — frozen dataclasses: `Category`, `Task`,
   `TaskNote`, `Template`, `TemplateItem`. Enums: `TaskStatus` (OPEN, IN_PROGRESS,
   COMPLETE, DEFERRED, BLOCKED), `Priority` (LOW, NORMAL, HIGH), `RecurrenceUnit`
   (DAYS, WEEKS, MONTHS).
-- [ ] `Task` carries optional `recurrence_interval: int` + `recurrence_unit` — both set
-  or both null (enforced in schema and repo validation).
+- [x] `Task` carries an optional `Recurrence(interval, unit)` value object — the
+  both-or-neither rule is unrepresentable in the domain model; the schema enforces
+  it on the paired DB columns.
 - **Done when:** mypy strict passes; enums round-trip to/from their DB string values.
 
 ### 1.2 SQLite schema & migration runner
