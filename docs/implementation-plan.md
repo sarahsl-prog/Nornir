@@ -94,12 +94,12 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** unit tests pass; app startup logs a session line to the file sink.
 
 ### 0.4 CI workflow + CodeQL code scanning
-- [ ] `.github/workflows/ci.yml` — on push and pull request: set up Python 3.13,
+- [x] `.github/workflows/ci.yml` — on push and pull request: set up Python 3.13,
   install `requirements.txt` + `requirements-dev.txt`, then run the same gates as
   local pre-commit — `ruff check`, `black --check`, `mypy src/nornir/`,
   `bandit -r src/nornir/`, and `pytest` with `QT_QPA_PLATFORM=offscreen` (Qt needs
   the `libegl1`/`libgl1` apt packages on the runner for import to succeed headless).
-- [ ] `.github/workflows/codeql.yml` — CodeQL "advanced setup" for Python: runs on
+- [x] `.github/workflows/codeql.yml` — CodeQL "advanced setup" for Python: runs on
   push to `main`, pull requests, and a weekly `schedule`; results surface in the
   repo's Security → Code scanning tab and as PR checks.
 - [ ] Manual (Sarah, repo Settings → Advanced Security): enable secret scanning +
