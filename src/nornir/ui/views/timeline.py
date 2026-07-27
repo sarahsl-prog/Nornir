@@ -26,7 +26,7 @@ from nornir.domain.models import Task
 from nornir.domain.urgency import due_state
 from nornir.ui.events import EventBus
 from nornir.ui.theming import category_icon, due_state_color
-from nornir.ui.util import flatten_categories
+from nornir.ui.util import flatten_categories, recurrence_text
 
 _TASK_ID_ROLE = int(Qt.ItemDataRole.UserRole)
 
@@ -132,7 +132,10 @@ class TimelineWidget(QWidget):
                 header.setText(0, group_date.isoformat())
             for task in groups[group_date]:
                 item = QTreeWidgetItem(header)
-                item.setText(0, f"{task.title}  [{task.status.value}]")
+                badge = " ↻" if task.recurrence is not None else ""
+                item.setText(0, f"{task.title}{badge}  [{task.status.value}]")
+                if task.recurrence is not None:
+                    item.setToolTip(0, recurrence_text(task.recurrence))
                 item.setIcon(0, category_icon(colors.get(task.category_id, "#808080")))
                 item.setData(0, _TASK_ID_ROLE, task.id)
                 accent = due_state_color(due_state(task.due_date, today))

@@ -24,6 +24,7 @@ from nornir.domain.models import Category, Task, TaskStatus
 from nornir.domain.urgency import due_state
 from nornir.ui.events import EventBus
 from nornir.ui.theming import due_state_icon
+from nornir.ui.util import recurrence_text
 
 #: Custom roles for delegates and tests.
 TASK_ID_ROLE = int(Qt.ItemDataRole.UserRole)
@@ -125,6 +126,8 @@ class TaskTableModel(QAbstractTableModel):
         task = self._rows[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
             return self._display(task, index.column())
+        if role == Qt.ItemDataRole.ToolTipRole and task.recurrence is not None:
+            return recurrence_text(task.recurrence)
         if role == Qt.ItemDataRole.DecorationRole and index.column() == COL_CATEGORY:
             category = self._by_category.get(task.category_id)
             return QColor(category.color) if category else None
@@ -147,7 +150,8 @@ class TaskTableModel(QAbstractTableModel):
 
     def _display(self, task: Task, column: int) -> str:
         if column == COL_TITLE:
-            return task.title
+            # subtle recurrence badge; the tooltip carries the full rule
+            return f"{task.title} ↻" if task.recurrence is not None else task.title
         if column == COL_CATEGORY:
             category = self._by_category.get(task.category_id)
             return category.name if category else ""

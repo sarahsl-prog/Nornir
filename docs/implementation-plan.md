@@ -282,11 +282,12 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 4 — Generators & Templates (P0)
 
 ### 4.1 Recurring tasks UI surface
-- [ ] Recurrence editor already on the detail form (3.2); this task wires completion
-  paths (list context menu, detail status change) through `TaskRepo.complete_task`
+- [x] Recurrence editor already on the detail form (3.2); completion paths (list
+  context menu) route through `TaskRepo.complete_task` (wired in 3.3)
   so the roll-forward fires from anywhere; successor appears via `task_changed`.
-- [ ] A subtle "↻ every N unit" badge in list/timeline rows.
-- [ ] Tests (UI level): completing a recurring task from the list shows the successor
+- [x] A subtle "↻" badge on list/timeline rows with the full "every N unit" rule as
+  the tooltip.
+- [x] Tests (UI level): completing a recurring task from the list shows the successor
   with advanced dates.
 - **Done when:** P0 #12 demonstrable end to end.
 

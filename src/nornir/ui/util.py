@@ -5,7 +5,13 @@ from __future__ import annotations
 from collections import defaultdict
 
 from nornir.db.category_repo import CategoryRepo
-from nornir.domain.models import Category
+from nornir.domain.models import Category, Recurrence
+
+
+def recurrence_text(rule: Recurrence) -> str:
+    """Human-readable rule, e.g. '↻ every 6 days' / '↻ every 1 week'."""
+    unit = rule.unit.value if rule.interval != 1 else rule.unit.value.rstrip("s")
+    return f"↻ every {rule.interval} {unit}"
 
 
 def flatten_categories(repo: CategoryRepo) -> list[tuple[int, str, Category]]:
