@@ -7,9 +7,9 @@ import pytest
 from PySide6.QtWidgets import QLabel
 from pytestqt.qtbot import QtBot
 
-from nornir.app import build_main_window
 from nornir.db.app_state import AppStateRepo
 from nornir.db.connection import connect
+from nornir.ui.events import EventBus
 from nornir.ui.main_window import MainWindow
 
 
@@ -19,8 +19,9 @@ def conn(tmp_path: Path) -> sqlite3.Connection:
 
 
 def build_with_docks(qtbot: QtBot, conn: sqlite3.Connection) -> MainWindow:
-    """A window with two registered docks, as the real bootstrap will do."""
-    window = build_main_window(conn)
+    """A bare shell with two registered docks (bootstrap wiring is tested in
+    test_timeline's TestWindowWiring)."""
+    window = MainWindow(AppStateRepo(conn), EventBus())
     qtbot.addWidget(window)
     window.add_dock_view("dock_tree", "Tree", QLabel("tree"))
     window.add_dock_view("dock_tasks", "Tasks", QLabel("tasks"))

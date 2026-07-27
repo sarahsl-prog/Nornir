@@ -221,59 +221,59 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 3 — Core Windows (P0)
 
 ### 3.1 Tree View window + category CRUD
-- [ ] `src/nornir/ui/views/tree_view.py` — `QTreeView` on the category model.
-- [ ] Category dialogs: create/rename (name + `QColorDialog` color), reorder within
+- [x] `src/nornir/ui/views/tree_view.py` — `QTreeView` on the category model.
+- [x] Category dialogs: create/rename (name + `QColorDialog` color), reorder within
   siblings (drag or up/down actions), move to another parent (depth revalidated —
   repo error surfaces as a friendly message, never a raw exception).
-- [ ] Context menu: **New Task** (→ 3.2, category + dates prefilled), **New
+- [x] Context menu: **New Task** (→ 3.2, category + dates prefilled), **New
   Sub-category**, **Apply Template…** (stub until 4.3), **New Module Series…** (stub
   until 4.2), **Archive**, and **Unarchive** when shown via the archived toggle.
-- [ ] Archive confirm dialog states the cascade ("archives N sub-categories and M
+- [x] Archive confirm dialog states the cascade ("archives N sub-categories and M
   tasks").
-- [ ] Tests: context-menu actions fire correct handlers; depth-violation path shows
+- [x] Tests: context-menu actions fire correct handlers; depth-violation path shows
   error and creates nothing.
 - **Done when:** full category lifecycle is possible from the tree alone (P0 #1, #3, #6).
 
 ### 3.2 Task Detail/Edit window
-- [ ] `src/nornir/ui/views/task_detail.py` — form: title, description, category picker
+- [x] `src/nornir/ui/views/task_detail.py` — form: title, description, category picker
   (tree combo), start/due `QDateEdit`s, priority, status, recurrence row ("every
   [N] [days/weeks/months]" — checkbox enables it), notes list (timestamped,
   append-only textbox below).
-- [ ] Creation flow per spec: creation date auto-fills; a single "use as start date?"
+- [x] Creation flow per spec: creation date auto-fills; a single "use as start date?"
   pre-checked checkbox (one confirm, not two entries). When opened from tree
   right-click, category is pre-filed.
-- [ ] Opens populated on task selection signal from any other view; Save validates via
+- [x] Opens populated on task selection signal from any other view; Save validates via
   repo and emits `task_changed`.
-- [ ] Tests: prefill correctness from right-click path; validation error display;
+- [x] Tests: prefill correctness from right-click path; validation error display;
   save round-trip.
 - **Done when:** a task can be created in <5s from the tree (P0 #2, #3, #5; goal 1).
 
 ### 3.3 Task List View
-- [ ] `src/nornir/ui/views/task_list.py` — `QTableView` on the task table model with a
+- [x] `src/nornir/ui/views/task_list.py` — `QTableView` on the task table model with a
   filter bar: category dropdown (with "include sub-categories" check), status
   multi-select (defaults to Open + In-Progress), **Show Archived** checkbox.
-- [ ] Row styling: category color swatch; due-state icon per task. Double-click →
+- [x] Row styling: category color swatch; due-state icon per task. Double-click →
   Task Detail. Context menu: status changes, archive, **unarchive** (visible when
   showing archived).
-- [ ] Filter selections persist in `app_state`.
-- [ ] Tests: each filter narrows correctly; archived rows appear only with toggle on.
+- [x] Filter selections persist in `app_state`.
+- [x] Tests: each filter narrows correctly; archived rows appear only with toggle on.
 - **Done when:** P0 #4 + locked Show Archived decision are demonstrable.
 
 ### 3.4 Timeline View
-- [ ] `src/nornir/ui/views/timeline.py` — chronological list grouped under date
+- [x] `src/nornir/ui/views/timeline.py` — chronological list grouped under date
   headers (by due date; undated tasks in a trailing "No date" bucket), "Today"
   divider, all-categories vs single-category toggle (combo box).
-- [ ] Reuses task model + due-state icons; single-category mode includes descendants.
-- [ ] Tests: grouping/order correctness; category toggle filters.
+- [x] Reuses task model + due-state icons; single-category mode includes descendants.
+- [x] Tests: grouping/order correctness; category toggle filters.
 - **Done when:** P0 #10 demonstrable.
 
 ### 3.5 Visual state system
-- [ ] `src/nornir/ui/theming.py` — central place mapping `DueState` → icon/color
+- [x] `src/nornir/ui/theming.py` — central place mapping `DueState` → icon/color
   (overdue and due-soon visually distinct, per spec) and category color → swatch/row
   accents. All views consume this module so the coding stays consistent (P0 #6, #7).
-- [ ] A minute-level `QTimer` re-emits a refresh at midnight rollover so due states
+- [x] A minute-level `QTimer` re-emits a refresh at midnight rollover so due states
   stay correct in a long-running app (relevant to sidebar mode).
-- [ ] Tests: state→icon mapping; rollover triggers refresh signal.
+- [x] Tests: state→icon mapping; rollover triggers refresh signal.
 - **Done when:** the same task shows identical state cues in list, tree badge (if any),
   and timeline.
 

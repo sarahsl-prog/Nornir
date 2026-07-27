@@ -66,15 +66,11 @@ class TaskListWidget(QWidget):
         self._subcats_check = QCheckBox("Include sub-categories")
         self._status_button = QToolButton()
         self._status_button.setText("Statuses")
-        self._status_button.setPopupMode(
-            QToolButton.ToolButtonPopupMode.InstantPopup
-        )
+        self._status_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self._status_menu = QMenu(self._status_button)
         self._status_actions = {}
         for status in TaskStatus:
-            action = self._status_menu.addAction(
-                status.value.replace("_", " ").title()
-            )
+            action = self._status_menu.addAction(status.value.replace("_", " ").title())
             action.setCheckable(True)
             action.setChecked(status in _DEFAULT_STATUSES)
             action.toggled.connect(self._on_filters_edited)
@@ -183,9 +179,7 @@ class TaskListWidget(QWidget):
         self._subcats_check.setChecked(self._app_state.get(_KEY_SUBCATS) == "1")
         stored_statuses = self._app_state.get(_KEY_STATUSES)
         if stored_statuses is not None:
-            wanted = {
-                TaskStatus(v) for v in stored_statuses.split(",") if v
-            }
+            wanted = {TaskStatus(v) for v in stored_statuses.split(",") if v}
             for status, action in self._status_actions.items():
                 action.setChecked(status in wanted)
         self._archived_check.setChecked(self._app_state.get(_KEY_ARCHIVED) == "1")
@@ -193,9 +187,9 @@ class TaskListWidget(QWidget):
     # -- table interactions --------------------------------------------------
 
     def _on_double_click(self, index: object) -> None:
-        task_id = self.model.index(
-            self._table.currentIndex().row(), 0
-        ).data(TASK_ID_ROLE)
+        task_id = self.model.index(self._table.currentIndex().row(), 0).data(
+            TASK_ID_ROLE
+        )
         if task_id is not None:
             self.task_activated.emit(int(task_id))
 
