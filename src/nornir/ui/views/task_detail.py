@@ -215,9 +215,13 @@ class TaskDetailWidget(QWidget):
             QMessageBox.warning(self, "Nornir", "Pick a category first.")
             return
         start = (
-            _from_qdate(self._start_date.date()) if self._start_check.isChecked() else None
+            _from_qdate(self._start_date.date())
+            if self._start_check.isChecked()
+            else None
         )
-        due = _from_qdate(self._due_date.date()) if self._due_check.isChecked() else None
+        due = (
+            _from_qdate(self._due_date.date()) if self._due_check.isChecked() else None
+        )
         # combo userData round-trips StrEnums as plain strings (QVariant
         # coercion), so re-wrap through the enum constructors
         priority = Priority(self._priority.currentData())

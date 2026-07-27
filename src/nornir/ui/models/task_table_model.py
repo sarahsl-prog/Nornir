@@ -142,6 +142,9 @@ class TaskTableModel(QAbstractTableModel):
     def task_at(self, row: int) -> Task | None:
         return self._rows[row] if 0 <= row < len(self._rows) else None
 
+    def task_at_id(self, task_id: int) -> Task | None:
+        return next((t for t in self._rows if t.id == task_id), None)
+
     def _display(self, task: Task, column: int) -> str:
         if column == COL_TITLE:
             return task.title
