@@ -71,7 +71,8 @@ class TemplateRepo:
             raise ValidationError("Template name must not be empty.")
         with self._conn:
             self._conn.execute(
-                "UPDATE templates SET name = ? WHERE id = ?", (name.strip(), template_id)
+                "UPDATE templates SET name = ? WHERE id = ?",
+                (name.strip(), template_id),
             )
         return self.get(template_id)
 

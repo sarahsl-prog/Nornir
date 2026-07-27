@@ -93,7 +93,7 @@ nornir/
 
 ## Roadmap
 
-- [ ] Data model + SQLite schema
+- [x] Data model + SQLite schema
 - [ ] Tree View + category CRUD
 - [ ] Task CRUD + Task Detail/Edit window
 - [ ] Task List View

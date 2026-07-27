@@ -171,14 +171,14 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** repo tests pass.
 
 ### 1.6 Derived-state logic (pure functions)
-- [ ] `src/nornir/domain/urgency.py`:
+- [x] `src/nornir/domain/urgency.py`:
   - `due_state(task, today, window) -> DueState` (NONE / DUE_SOON / OVERDUE) — derived,
     never stored, per spec.
   - `urgency_score(task, today) -> float` — proposed formula (tunable constant table,
     documented in the module docstring):
     `score = priority_weight[priority] + proximity`, where `priority_weight` = {HIGH: 100, NORMAL: 50, LOW: 0} and `proximity = clamp(14 - days_until_due, 0, 28)` (overdue tasks get `14 + min(days_overdue, 14)`). Result: within a priority band, closer/overdue sorts higher; a HIGH task always outranks a NORMAL one — matching "closer due date = higher score, at a given priority level."
   - Tasks with no due date get proximity 0; Complete/archived tasks are excluded by the caller.
-- [ ] Tests: table-driven cases across the boundary days; property: score monotonic in
+- [x] Tests: table-driven cases across the boundary days; property: score monotonic in
   due-date proximity within a fixed priority.
 - **Done when:** pure-function tests pass; formula documented for later tuning.
 
