@@ -398,11 +398,15 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
   venv with networking disabled.
 
 ### 6.2 WSLg validation checklist (manual, on the work laptop)
-- [ ] Documented checklist in `docs/deployment.md`: window docking/floating behavior
-  under WSLg, multi-window focus, always-on-top for sidebar mode, layout
-  persistence across WSL restarts, DB file location inside the WSL filesystem (not
-  `/mnt/c` — I/O performance), and the raw-`.db`-copy migration procedure
-  (home ↔ work) with the "close the app first" warning (WAL files).
+- [x] Documented checklist in `docs/deployment.md`: prerequisites, both install
+  paths, window docking/floating behavior under WSLg, multi-window focus,
+  always-on-top for sidebar mode, layout persistence across WSL restarts (incl.
+  `wsl --shutdown`), DB file location inside the WSL filesystem (not
+  `/mnt/c` — I/O performance and unreliable locking for WAL), the raw-`.db`-copy
+  migration procedure (home ↔ work) with the "close the app first" WAL warning,
+  JSON-restore procedure, and a troubleshooting section.
+- [ ] **Manual (Sarah):** run the checklist once on the work laptop and note any
+  WSLg-specific rough edges (always-on-top for sidebar mode is the likeliest).
 - **Done when:** checklist exists and has been run once on the work machine.
 
 ---

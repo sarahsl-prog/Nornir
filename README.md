@@ -37,6 +37,9 @@ This app is built and run identically in two places:
 | **Home** | Native Linux or WSL — flexible |
 | **Work** | Windows 11 laptop, runs via **WSL2 + WSLg**. IT blocks non-allowlisted Windows executables, so the app runs as a Linux process (`python3 app.py`) and is displayed on the Windows desktop via WSLg — never as an installed Windows binary. |
 
+Full setup, the WSLg validation checklist, and the home ↔ work database
+migration procedure live in [`docs/deployment.md`](docs/deployment.md).
+
 ### Offline package installation (work environment)
 
 The work environment can't reach PyPI directly (certificate errors). Packages are installed from a pre-built offline wheelhouse instead — two scripts wrap the whole flow, including Python-version/platform guards and a post-install smoke check:
