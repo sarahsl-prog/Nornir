@@ -292,19 +292,20 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** P0 #12 demonstrable end to end.
 
 ### 4.2 Module Series Generation
-- [ ] `src/nornir/services/series_generator.py` — pure service:
+- [x] `src/nornir/services/series_generator.py` — pure service:
   inputs `(parent_category_id, base_name, count, start_date, interval_n, interval_unit, template_id)`.
   In one transaction: create sub-categories "Base 1"…"Base N" (each slot's date =
-  `start_date + (i-1) × interval`), then stamp **all** items of the chosen template
-  into each module with start/due derived from that module's slot date. Depth
-  validated up front (parent must be ≤ depth 3).
-- [ ] `src/nornir/ui/dialogs/series_dialog.py` — launched from tree context menu:
+  `start_date + (i-1) × interval`, month math multiplied not iterated so clamping
+  never compounds), then stamp **all** items of the chosen template
+  into each module with start/due set to that module's slot date. Depth
+  validated up front (parent must be ≤ depth 3); modules inherit the parent color.
+- [x] `src/nornir/ui/dialogs/series_dialog.py` — launched from tree context menu:
   parent (prefilled), name stem, count, interval (N + unit), start date, template
-  picker, and a preview pane ("will create 8 sub-categories × 4 tasks = 32 tasks")
-  before OK.
-- [ ] Tests: service-level — correct category count, per-module dates, template
+  picker (or "categories only"), and a live preview ("Will create 8 sub-categories ×
+  2 tasks = 16 tasks") before OK.
+- [x] Tests: service-level — correct category count, per-module dates, template
   stamped fully on each, transaction rolls back wholly on failure; dialog-level —
-  preview math.
+  preview math and spec round-trip.
 - **Done when:** P0 #11 matches the spec's two-layer definition exactly.
 
 ### 4.3 Task Template Library
