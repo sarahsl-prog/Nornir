@@ -112,19 +112,20 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 1 — Data Layer
 
 ### 1.1 Domain model & enums
-- [ ] `src/nornir/domain/models.py` — frozen dataclasses: `Category`, `Task`,
+- [x] `src/nornir/domain/models.py` — frozen dataclasses: `Category`, `Task`,
   `TaskNote`, `Template`, `TemplateItem`. Enums: `TaskStatus` (OPEN, IN_PROGRESS,
   COMPLETE, DEFERRED, BLOCKED), `Priority` (LOW, NORMAL, HIGH), `RecurrenceUnit`
   (DAYS, WEEKS, MONTHS).
-- [ ] `Task` carries optional `recurrence_interval: int` + `recurrence_unit` — both set
-  or both null (enforced in schema and repo validation).
+- [x] `Task` carries an optional `Recurrence(interval, unit)` value object — the
+  both-or-neither rule is unrepresentable in the domain model; the schema enforces
+  it on the paired DB columns.
 - **Done when:** mypy strict passes; enums round-trip to/from their DB string values.
 
 ### 1.2 SQLite schema & migration runner
-- [ ] `src/nornir/db/schema.py` + `src/nornir/db/migrations/` — numbered migration
-  scripts applied by a tiny runner that tracks `PRAGMA user_version`. Foreign keys ON,
+- [x] `src/nornir/db/schema.py` — append-only `MIGRATIONS` tuple applied by a tiny
+  runner that tracks `PRAGMA user_version`. Foreign keys ON,
   WAL mode (better multi-window responsiveness on one file).
-- [ ] Schema v1:
+- [x] Schema v1:
   - `categories(id, parent_id → categories, name, color, position, created_at, archived_at)`
   - `tasks(id, category_id → categories, title, description, created_at, start_date, due_date, priority, status, recurrence_interval, recurrence_unit, archived_at)`
   - `task_notes(id, task_id → tasks, body, created_at)`
@@ -132,50 +133,52 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
   - `app_state(key, value)` — layout blobs, "daily summary last shown", due-soon window.
   - Indexes: `tasks(category_id)`, `tasks(due_date)`, `tasks(status)`, `categories(parent_id)`; partial indexes filtered on `archived_at IS NULL` where it pays.
   - Dates stored as ISO-8601 TEXT (`YYYY-MM-DD` for dates, full timestamp for `created_at`) — sortable, human-readable, JSON-friendly.
-- [ ] `src/nornir/db/connection.py` — open/create DB at the paths-module location,
+- [x] `src/nornir/db/connection.py` — open/create DB at the paths-module location,
   apply migrations on startup, expose one connection for the single-process app.
-- [ ] Tests: fresh DB creation, migration idempotency, FK enforcement.
+- [x] Tests: fresh DB creation, migration idempotency, FK enforcement.
 - **Done when:** deleting the DB file and launching recreates a valid empty schema.
 
 ### 1.3 Category repository
-- [ ] `src/nornir/db/category_repo.py` — CRUD returning domain objects. Rules enforced
+- [x] `src/nornir/db/category_repo.py` — CRUD returning domain objects. Rules enforced
   here (not in the UI): **max depth 4** on create/move; archive cascades to the
   subtree (single UPDATE with a recursive CTE); unarchive restores the same set;
   reject un-archiving a node whose ancestor is still archived.
-- [ ] `get_tree()` returns the full active tree in one query (recursive CTE), ordered
+- [x] `get_tree()` returns the full active tree in one query, ordered
   by `position` — the Tree View model consumes this directly.
-- [ ] Tests: depth limit (create at depth 5 fails), cascade archive/unarchive, ordering.
+- [x] Tests: depth limit (create at depth 5 fails), cascade archive/unarchive, ordering,
+  cycle-prevention on move, and a rows-never-deleted assertion.
 - **Done when:** all repo tests pass; no SQL lives outside the `db` package.
 
 ### 1.4 Task repository
-- [ ] `src/nornir/db/task_repo.py` — CRUD; validation (title required, both-or-neither
-  recurrence fields, due ≥ start when both set); archive/unarchive; queries: by
-  category (optionally including descendants), by status set, by due-date range,
-  active-only vs include-archived.
-- [ ] `complete_task(task_id)` implements the recurring roll-forward (Assumption 5)
+- [x] `src/nornir/db/task_repo.py` — CRUD; validation (title required, both-or-neither
+  recurrence fields, due ≥ start when both set); archive/unarchive; notes
+  (append/list); queries: by category (optionally including descendants), by status
+  set, by due-date cutoff, active-only vs include-archived.
+- [x] `complete_task(task_id)` implements the recurring roll-forward (Assumption 5)
   in one transaction: mark Complete, and if recurrence set, insert the successor with
-  dates advanced (months advanced via calendar-aware arithmetic — e.g. Jan 31 + 1
-  month → Feb 28, using `calendar`/`dateutil`-style clamping, no naive 30-day adds).
-- [ ] Tests: recurrence roll-forward for days/weeks/months incl. month-end clamping;
-  completion of a non-recurring task creates nothing.
+  dates advanced via `nornir.domain.dates` (calendar-aware month arithmetic — e.g.
+  Jan 31 + 1 month → Feb 28, day clamped to target month length).
+- [x] Tests: recurrence roll-forward for days/weeks/months incl. month-end clamping;
+  completion of a non-recurring task creates nothing; dateless recurring tasks.
 - **Done when:** repo tests pass; recurring behavior matches spec exactly.
 
 ### 1.5 Template repository
-- [ ] `src/nornir/db/template_repo.py` — template CRUD (archive-not-delete applies to
+- [x] `src/nornir/db/template_repo.py` — template CRUD (archive-not-delete applies to
   templates too), item CRUD with ordering, `apply(template_id, category_id, selected_item_ids, base_date)` creating only the selected tasks in one transaction.
-- [ ] Tests: partial selection creates only chosen tasks; applying twice creates
-  independent copies (templates are stamps, not links).
+- [x] Tests: partial selection creates only chosen tasks; applying twice creates
+  independent copies (templates are stamps, not links); rollback when the selection
+  includes a foreign item.
 - **Done when:** repo tests pass.
 
 ### 1.6 Derived-state logic (pure functions)
-- [ ] `src/nornir/domain/urgency.py`:
+- [x] `src/nornir/domain/urgency.py`:
   - `due_state(task, today, window) -> DueState` (NONE / DUE_SOON / OVERDUE) — derived,
     never stored, per spec.
   - `urgency_score(task, today) -> float` — proposed formula (tunable constant table,
     documented in the module docstring):
     `score = priority_weight[priority] + proximity`, where `priority_weight` = {HIGH: 100, NORMAL: 50, LOW: 0} and `proximity = clamp(14 - days_until_due, 0, 28)` (overdue tasks get `14 + min(days_overdue, 14)`). Result: within a priority band, closer/overdue sorts higher; a HIGH task always outranks a NORMAL one — matching "closer due date = higher score, at a given priority level."
   - Tasks with no due date get proximity 0; Complete/archived tasks are excluded by the caller.
-- [ ] Tests: table-driven cases across the boundary days; property: score monotonic in
+- [x] Tests: table-driven cases across the boundary days; property: score monotonic in
   due-date proximity within a fixed priority.
 - **Done when:** pure-function tests pass; formula documented for later tuning.
 
