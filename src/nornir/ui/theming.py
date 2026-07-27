@@ -83,6 +83,7 @@ class MidnightNotifier(QObject):
 
     def _schedule(self) -> None:
         self._timer.start(self._ms_until_midnight())
+
     @staticmethod
     def _ms_until_midnight(now: datetime | None = None) -> int:
         current = now if now is not None else datetime.now()
