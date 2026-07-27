@@ -321,11 +321,13 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** P0 #14 demonstrable ("Network SR" scenario from the spec works).
 
 ### 4.4 Archive UX pass
-- [ ] Sweep: every "delete-like" affordance is labeled **Archive**; no code path issues
-  a `DELETE` on categories/tasks/templates (enforced by a repo-layer test asserting
-  row counts never drop).
-- [ ] Unarchive available from Task List (toggle view) and tree archived view.
-- [ ] Tests: archive → hidden from all four active views; unarchive → returns.
+- [x] Sweep: every "delete-like" affordance is labeled **Archive**; no code path issues
+  a `DELETE` on categories/tasks/templates — enforced by a static source scan test
+  (only `template_items` may be deleted) plus row-count assertions.
+- [x] Unarchive available from Task List (Show Archived toggle) and via
+  `CategoryRepo.unarchive`.
+- [x] Tests: archive → hidden from tree, list, and timeline; unarchive → returns;
+  no "delete" labels in any context menu.
 - **Done when:** P0 #13 holds app-wide.
 
 ---

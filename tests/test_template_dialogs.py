@@ -44,9 +44,7 @@ class TestTemplateLibrary:
         assert dialog.template_names() == ["App SR", "Network SR"]
 
         dialog.select_template(dialog.selected_template_id() or 0)
-        network = next(
-            t for t in templates.list_templates() if t.name == "Network SR"
-        )
+        network = next(t for t in templates.list_templates() if t.name == "Network SR")
         dialog.rename_template(network.id, "Net SR")
         assert "Net SR" in dialog.template_names()
 

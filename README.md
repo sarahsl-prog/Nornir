@@ -98,10 +98,10 @@ nornir/
 - [x] Task CRUD + Task Detail/Edit window
 - [x] Task List View
 - [x] Timeline View
-- [ ] Module Series Generation
-- [ ] Recurring tasks
-- [ ] Archive (not delete)
-- [ ] Task Template Library
+- [x] Module Series Generation
+- [x] Recurring tasks
+- [x] Archive (not delete)
+- [x] Task Template Library
 - [ ] Priority Widget
 - [ ] Floating Sidebar mode
 - [ ] Daily summary popup
