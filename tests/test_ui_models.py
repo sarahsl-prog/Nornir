@@ -116,9 +116,7 @@ class TestTaskTableModel:
         tasks.create(cat.id, "done", status=TaskStatus.COMPLETE)
         model = TaskTableModel(tasks, categories, bus)
 
-        titles = {
-            model.index(r, COL_TITLE).data() for r in range(model.rowCount())
-        }
+        titles = {model.index(r, COL_TITLE).data() for r in range(model.rowCount())}
         assert titles == {"open task", "in progress"}
 
     def test_display_and_roles(

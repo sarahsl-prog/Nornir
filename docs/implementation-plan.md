@@ -206,12 +206,14 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** `QTreeView`/`QTableView` smoke tests render both models offscreen.
 
 ### 2.3 Main window, docking, layout persistence
-- [ ] `src/nornir/ui/main_window.py` — `QMainWindow` acting as dock host. Each view is
-  a `QDockWidget` (dockable, floatable, closable). A `View` menu toggles each window.
-- [ ] Persist layout via `saveState()`/`saveGeometry()` into `app_state` on close and
+- [x] `src/nornir/ui/main_window.py` — `QMainWindow` acting as dock host. Each view is
+  a `QDockWidget` (dockable, floatable, closable) registered via `add_dock_view`.
+  A `View` menu toggles each window. `src/nornir/db/app_state.py` provides the
+  key-value storage.
+- [x] Persist layout via `saveState()`/`saveGeometry()` into `app_state` on close and
   on layout change (debounced); restore on startup; versioned key so a future
   incompatible layout format can fall back to defaults cleanly.
-- [ ] Tests: save → restore round-trip preserves dock arrangement (offscreen).
+- [x] Tests: save → restore round-trip preserves dock arrangement (offscreen).
 - **Done when:** rearranged/floated windows come back identically after restart (P0 #9).
 
 ---

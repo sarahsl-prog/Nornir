@@ -34,6 +34,9 @@ COL_TITLE, COL_CATEGORY, COL_START, COL_DUE, COL_PRIORITY, COL_STATUS = range(6)
 
 _ModelIndex = QModelIndex | QPersistentModelIndex
 
+#: Shared invalid index used as the default 'root' argument (never mutated).
+_ROOT = QModelIndex()
+
 
 class TaskTableModel(QAbstractTableModel):
     """Read-only tabular projection of a filtered task query."""
@@ -96,10 +99,10 @@ class TaskTableModel(QAbstractTableModel):
 
     # -- QAbstractTableModel API ---------------------------------------------
 
-    def rowCount(self, parent: _ModelIndex = QModelIndex()) -> int:
+    def rowCount(self, parent: _ModelIndex = _ROOT) -> int:
         return 0 if parent.isValid() else len(self._rows)
 
-    def columnCount(self, parent: _ModelIndex = QModelIndex()) -> int:
+    def columnCount(self, parent: _ModelIndex = _ROOT) -> int:
         return len(COLUMNS)
 
     def headerData(

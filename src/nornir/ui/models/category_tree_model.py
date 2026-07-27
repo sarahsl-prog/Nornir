@@ -27,6 +27,9 @@ CATEGORY_ID_ROLE = int(Qt.ItemDataRole.UserRole)
 
 _ModelIndex = QModelIndex | QPersistentModelIndex
 
+#: Shared invalid index used as the default 'root' argument (never mutated).
+_ROOT = QModelIndex()
+
 
 class _Node:
     """One tree position; wraps a Category with parent/child links."""
@@ -95,24 +98,22 @@ class CategoryTreeModel(QAbstractItemModel):
 
     # -- QAbstractItemModel API ----------------------------------------------
 
-    def index(
-        self, row: int, column: int, parent: _ModelIndex = QModelIndex()
-    ) -> QModelIndex:
+    def index(self, row: int, column: int, parent: _ModelIndex = _ROOT) -> QModelIndex:
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
         parent_node = self._node(parent)
         return self.createIndex(row, column, parent_node.children[row])
 
-    def parent(self, index: _ModelIndex = QModelIndex()) -> QModelIndex:  # type: ignore[override]
+    def parent(self, index: _ModelIndex = _ROOT) -> QModelIndex:  # type: ignore[override]
         node = self._node(index)
         if node.parent is None or node.parent is self._root:
             return QModelIndex()
         return self.createIndex(node.parent.row(), 0, node.parent)
 
-    def rowCount(self, parent: _ModelIndex = QModelIndex()) -> int:
+    def rowCount(self, parent: _ModelIndex = _ROOT) -> int:
         return len(self._node(parent).children)
 
-    def columnCount(self, parent: _ModelIndex = QModelIndex()) -> int:
+    def columnCount(self, parent: _ModelIndex = _ROOT) -> int:
         return 1
 
     def data(self, index: _ModelIndex, role: int = 0) -> Any:
