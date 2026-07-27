@@ -19,7 +19,9 @@ CREATE TABLE categories (
     id          INTEGER PRIMARY KEY,
     parent_id   INTEGER REFERENCES categories(id),
     name        TEXT    NOT NULL CHECK (length(trim(name)) > 0),
-    color       TEXT    NOT NULL CHECK (color GLOB '#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]'),
+    color       TEXT    NOT NULL
+                CHECK (color GLOB ('#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]'
+                                   || '[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]')),
     position    INTEGER NOT NULL DEFAULT 0,
     created_at  TEXT    NOT NULL,
     archived_at TEXT
@@ -38,10 +40,13 @@ CREATE TABLE tasks (
     priority            TEXT    NOT NULL DEFAULT 'normal'
                         CHECK (priority IN ('low', 'normal', 'high')),
     status              TEXT    NOT NULL DEFAULT 'open'
-                        CHECK (status IN ('open', 'in_progress', 'complete', 'deferred', 'blocked')),
-    recurrence_interval INTEGER CHECK (recurrence_interval IS NULL OR recurrence_interval >= 1),
+                        CHECK (status IN ('open', 'in_progress', 'complete',
+                                          'deferred', 'blocked')),
+    recurrence_interval INTEGER CHECK (recurrence_interval IS NULL
+                                       OR recurrence_interval >= 1),
     recurrence_unit     TEXT    CHECK (recurrence_unit IS NULL
-                                       OR recurrence_unit IN ('days', 'weeks', 'months')),
+                                       OR recurrence_unit IN ('days', 'weeks',
+                                                              'months')),
     archived_at         TEXT,
     -- both-or-neither: a recurrence rule is an (interval, unit) pair
     CHECK ((recurrence_interval IS NULL) = (recurrence_unit IS NULL)),

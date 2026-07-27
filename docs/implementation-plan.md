@@ -139,13 +139,14 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** deleting the DB file and launching recreates a valid empty schema.
 
 ### 1.3 Category repository
-- [ ] `src/nornir/db/category_repo.py` — CRUD returning domain objects. Rules enforced
+- [x] `src/nornir/db/category_repo.py` — CRUD returning domain objects. Rules enforced
   here (not in the UI): **max depth 4** on create/move; archive cascades to the
   subtree (single UPDATE with a recursive CTE); unarchive restores the same set;
   reject un-archiving a node whose ancestor is still archived.
-- [ ] `get_tree()` returns the full active tree in one query (recursive CTE), ordered
+- [x] `get_tree()` returns the full active tree in one query, ordered
   by `position` — the Tree View model consumes this directly.
-- [ ] Tests: depth limit (create at depth 5 fails), cascade archive/unarchive, ordering.
+- [x] Tests: depth limit (create at depth 5 fails), cascade archive/unarchive, ordering,
+  cycle-prevention on move, and a rows-never-deleted assertion.
 - **Done when:** all repo tests pass; no SQL lives outside the `db` package.
 
 ### 1.4 Task repository

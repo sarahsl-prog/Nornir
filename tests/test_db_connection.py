@@ -28,19 +28,28 @@ def test_expected_tables_exist(conn: sqlite3.Connection) -> None:
         row["name"]
         for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
     }
-    assert {"categories", "tasks", "task_notes", "templates", "template_items", "app_state"} <= names
+    assert {
+        "categories",
+        "tasks",
+        "task_notes",
+        "templates",
+        "template_items",
+        "app_state",
+    } <= names
 
 
 def test_foreign_keys_enforced(conn: sqlite3.Connection) -> None:
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute(
-            "INSERT INTO tasks (category_id, title, created_at) VALUES (999, 'x', '2026-01-01T00:00:00')"
+            "INSERT INTO tasks (category_id, title, created_at)"
+            " VALUES (999, 'x', '2026-01-01T00:00:00')"
         )
 
 
 def test_recurrence_both_or_neither_enforced(conn: sqlite3.Connection) -> None:
     conn.execute(
-        "INSERT INTO categories (name, color, created_at) VALUES ('C', '#112233', '2026-01-01T00:00:00')"
+        "INSERT INTO categories (name, color, created_at)"
+        " VALUES ('C', '#112233', '2026-01-01T00:00:00')"
     )
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute(
