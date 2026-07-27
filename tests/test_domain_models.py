@@ -68,18 +68,32 @@ class TestRecurrence:
 class TestCategory:
     def test_valid(self) -> None:
         cat = Category(
-            id=1, name="Homelab", color="#33AA55", parent_id=None, position=0, created_at=NOW
+            id=1,
+            name="Homelab",
+            color="#33AA55",
+            parent_id=None,
+            position=0,
+            created_at=NOW,
         )
         assert cat.archived_at is None
 
     def test_blank_name_rejected(self) -> None:
         with pytest.raises(ValidationError):
-            Category(id=1, name="  ", color="#33AA55", parent_id=None, position=0, created_at=NOW)
+            Category(
+                id=1,
+                name="  ",
+                color="#33AA55",
+                parent_id=None,
+                position=0,
+                created_at=NOW,
+            )
 
     @pytest.mark.parametrize("color", ["red", "#12345", "#12345G", ""])
     def test_bad_color_rejected(self, color: str) -> None:
         with pytest.raises(ValidationError):
-            Category(id=1, name="X", color=color, parent_id=None, position=0, created_at=NOW)
+            Category(
+                id=1, name="X", color=color, parent_id=None, position=0, created_at=NOW
+            )
 
 
 class TestTask:

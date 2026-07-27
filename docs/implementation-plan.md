@@ -122,10 +122,10 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** mypy strict passes; enums round-trip to/from their DB string values.
 
 ### 1.2 SQLite schema & migration runner
-- [ ] `src/nornir/db/schema.py` + `src/nornir/db/migrations/` — numbered migration
-  scripts applied by a tiny runner that tracks `PRAGMA user_version`. Foreign keys ON,
+- [x] `src/nornir/db/schema.py` — append-only `MIGRATIONS` tuple applied by a tiny
+  runner that tracks `PRAGMA user_version`. Foreign keys ON,
   WAL mode (better multi-window responsiveness on one file).
-- [ ] Schema v1:
+- [x] Schema v1:
   - `categories(id, parent_id → categories, name, color, position, created_at, archived_at)`
   - `tasks(id, category_id → categories, title, description, created_at, start_date, due_date, priority, status, recurrence_interval, recurrence_unit, archived_at)`
   - `task_notes(id, task_id → tasks, body, created_at)`
@@ -133,9 +133,9 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
   - `app_state(key, value)` — layout blobs, "daily summary last shown", due-soon window.
   - Indexes: `tasks(category_id)`, `tasks(due_date)`, `tasks(status)`, `categories(parent_id)`; partial indexes filtered on `archived_at IS NULL` where it pays.
   - Dates stored as ISO-8601 TEXT (`YYYY-MM-DD` for dates, full timestamp for `created_at`) — sortable, human-readable, JSON-friendly.
-- [ ] `src/nornir/db/connection.py` — open/create DB at the paths-module location,
+- [x] `src/nornir/db/connection.py` — open/create DB at the paths-module location,
   apply migrations on startup, expose one connection for the single-process app.
-- [ ] Tests: fresh DB creation, migration idempotency, FK enforcement.
+- [x] Tests: fresh DB creation, migration idempotency, FK enforcement.
 - **Done when:** deleting the DB file and launching recreates a valid empty schema.
 
 ### 1.3 Category repository
