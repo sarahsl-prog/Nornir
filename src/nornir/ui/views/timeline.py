@@ -113,7 +113,7 @@ class TimelineWidget(QWidget):
         groups: dict[date | None, list[Task]] = {}
         for task in rows:
             groups.setdefault(task.due_date, []).append(task)
-        dated = sorted((d for d in groups if d is not None))
+        dated = sorted(d for d in groups if d is not None)
         ordered: list[date | None] = list(dated)
         if None in groups:
             ordered.append(None)
