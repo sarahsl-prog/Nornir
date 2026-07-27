@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import sqlite3
 import sys
+from datetime import date
 
 from loguru import logger
 from PySide6.QtCore import Qt
@@ -20,7 +21,9 @@ from nornir.db.connection import connect
 from nornir.db.task_repo import TaskRepo
 from nornir.infra import paths
 from nornir.infra.logging import configure_logging
+from nornir.services.daily_summary import build_summary, mark_shown, should_show
 from nornir.ui.dialogs.apply_template import ApplyTemplateDialog
+from nornir.ui.dialogs.daily_summary_dialog import DailySummaryDialog
 from nornir.ui.dialogs.series_dialog import SeriesDialog
 from nornir.ui.dialogs.template_library import TemplateLibraryDialog
 from nornir.ui.events import ALL_CHANGED, EventBus
@@ -32,6 +35,25 @@ from nornir.ui.views.task_detail import TaskDetailWidget
 from nornir.ui.views.task_list import TaskListWidget
 from nornir.ui.views.timeline import TimelineWidget
 from nornir.ui.views.tree_view import TreeViewWidget
+
+
+def show_daily_summary_if_due(conn: sqlite3.Connection, parent: MainWindow) -> bool:
+    """Show the once-per-calendar-day summary popup if it hasn't run today.
+
+    Returns True when the popup was shown. An empty summary still marks the
+    day (no point announcing 'nothing due' — but don't re-check all day).
+    """
+    app_state = AppStateRepo(conn)
+    today = date.today()
+    if not should_show(app_state, today):
+        return False
+    summary = build_summary(TaskRepo(conn), today)
+    mark_shown(app_state, today)
+    if summary.is_empty:
+        return False
+    dialog = DailySummaryDialog(summary, parent)
+    dialog.open()  # window-modal, non-blocking
+    return True
 
 
 def build_main_window(
@@ -107,9 +129,15 @@ def build_main_window(
     sidebar.restore_requested.connect(window.exit_sidebar_mode)
     sidebar.task_activated.connect(open_task)
 
-    # keep derived due states correct across midnight in a long-running app
+    # keep derived due states correct across midnight in a long-running app,
+    # and give the daily summary its not-tied-to-launch trigger (P1 #18)
     notifier = MidnightNotifier(window)
-    notifier.day_changed.connect(lambda: bus.task_changed.emit(ALL_CHANGED))
+
+    def on_day_changed() -> None:
+        bus.task_changed.emit(ALL_CHANGED)
+        show_daily_summary_if_due(conn, window)
+
+    notifier.day_changed.connect(on_day_changed)
 
     return window
 
@@ -126,6 +154,7 @@ def main() -> int:
         logger.info("no stored window layout; using defaults")
     window.apply_stored_mode()  # may re-enter sidebar mode from last session
     window.show()
+    show_daily_summary_if_due(conn, window)
     try:
         return app.exec()
     finally:
