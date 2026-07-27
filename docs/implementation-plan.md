@@ -58,44 +58,48 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 0 — Scaffolding & Tooling
 
 ### 0.1 Repository skeleton and packaging config
-- [ ] Create `pyproject.toml`: project metadata, `requires-python = ">=3.13,<3.14"`,
+- [x] Create `pyproject.toml`: project metadata, `requires-python = ">=3.13,<3.14"`,
   src-layout (`[tool.setuptools]` / hatchling `packages = ["src/nornir"]`), console
-  entry point `nornir = nornir.app:main`.
-- [ ] Create `src/nornir/__init__.py` (holds `__version__`), `src/nornir/app.py` with a
+  entry point `nornir = nornir.app:main`. (Distribution named `nornir-tracker` to
+  avoid clashing with the unrelated `nornir` package on PyPI; the import package is
+  still `nornir`.)
+- [x] Create `src/nornir/__init__.py` (holds `__version__`), `src/nornir/app.py` with a
   `main()` that opens an empty `QMainWindow` — proves the stack runs end to end.
-- [ ] Keep root `app.py` as a thin shim (`from nornir.app import main; main()`) so the
+- [x] Keep root `app.py` as a thin shim (`from nornir.app import main; main()`) so the
   README's `python3 app.py` invocation keeps working.
-- [ ] `requirements.txt` (runtime: `PySide6`, `loguru`, `platformdirs`) and
+- [x] `requirements.txt` (runtime: `PySide6`, `loguru`, `platformdirs`) and
   `requirements-dev.txt` (`pytest`, `pytest-qt`, `mypy`, `ruff`, `black`, `bandit`,
   `pre-commit`).
 - **Done when:** `pip install -e .` succeeds and `python3 app.py` opens a window.
 
 ### 0.2 Quality tooling
-- [ ] Configure in `pyproject.toml`: `ruff` (lint + import sorting), `black`, `mypy`
+- [x] Configure in `pyproject.toml`: `ruff` (lint + import sorting), `black`, `mypy`
   strict (`strict = true`, `packages = ["nornir"]`), `bandit` target `src/nornir`.
-- [ ] `.pre-commit-config.yaml` running ruff, black, mypy, bandit.
-- [ ] `pytest` config: `testpaths = ["tests"]`; set `QT_QPA_PLATFORM=offscreen` in test
-  env so GUI tests run headless (works in WSL and CI alike).
+- [x] `.pre-commit-config.yaml` running ruff, black, mypy, bandit — as `language:
+  system` hooks against the venv tools, since the work machine can't build
+  pre-commit's own isolated environments offline.
+- [x] `pytest` config: `testpaths = ["tests"]`; `QT_QPA_PLATFORM=offscreen` set in
+  `tests/conftest.py` so GUI tests run headless (works in WSL and CI alike).
 - **Done when:** `pre-commit run --all-files` passes on the skeleton.
 
 ### 0.3 Logging and app-paths module
-- [ ] `src/nornir/infra/logging.py` — loguru setup: rotating file sink under the app
+- [x] `src/nornir/infra/logging.py` — loguru setup: rotating file sink under the app
   data dir + stderr sink; a `session_id` bound at startup so every record carries it
   (per CLAUDE.md logging rule).
-- [ ] `src/nornir/infra/paths.py` — resolve data dir via `platformdirs`
+- [x] `src/nornir/infra/paths.py` — resolve data dir via `platformdirs`
   (`~/.local/share/nornir/` on Linux/WSL): DB file, log dir, layout/settings storage.
   Overridable via `NORNIR_DATA_DIR` env var (useful for tests and for pointing at a
   copied DB).
-- [ ] Tests: paths resolve, env override works, logging writes a record.
+- [x] Tests: paths resolve, env override works, logging writes a record.
 - **Done when:** unit tests pass; app startup logs a session line to the file sink.
 
 ### 0.4 CI workflow + CodeQL code scanning
-- [ ] `.github/workflows/ci.yml` — on push and pull request: set up Python 3.13,
+- [x] `.github/workflows/ci.yml` — on push and pull request: set up Python 3.13,
   install `requirements.txt` + `requirements-dev.txt`, then run the same gates as
   local pre-commit — `ruff check`, `black --check`, `mypy src/nornir/`,
   `bandit -r src/nornir/`, and `pytest` with `QT_QPA_PLATFORM=offscreen` (Qt needs
   the `libegl1`/`libgl1` apt packages on the runner for import to succeed headless).
-- [ ] `.github/workflows/codeql.yml` — CodeQL "advanced setup" for Python: runs on
+- [x] `.github/workflows/codeql.yml` — CodeQL "advanced setup" for Python: runs on
   push to `main`, pull requests, and a weekly `schedule`; results surface in the
   repo's Security → Code scanning tab and as PR checks.
 - [ ] Manual (Sarah, repo Settings → Advanced Security): enable secret scanning +

@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nornir-tracker"
+version = "0.1.0"
+description = "Personal, offline-first, multi-window task tracker"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "PySide6>=6.7",
+    "loguru>=0.7.2",
+    "platformdirs>=4.3",
+]
+
+[project.scripts]
+nornir = "nornir.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Defaults plus: import sorting, modern-syntax upgrades, bugbear, simplifications
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.black]
+target-version = ["py313"]
+
+[tool.mypy]
+strict = true
+python_version = "3.13"
+mypy_path = "src"
+packages = ["nornir"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.bandit]
+targets = ["src/nornir"]
