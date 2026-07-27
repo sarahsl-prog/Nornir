@@ -187,30 +187,33 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 2 — Application Shell
 
 ### 2.1 Event bus
-- [ ] `src/nornir/ui/events.py` — a `QObject` signal hub (`category_changed`,
-  `task_changed`, `layout_mode_changed`, each carrying ids). Windows subscribe and
+- [x] `src/nornir/ui/events.py` — a `QObject` signal hub (`category_changed`,
+  `task_changed`, `template_changed`, `layout_mode_changed`, each carrying ids, with
+  an `ALL_CHANGED = 0` sentinel for bulk operations). Windows subscribe and
   refresh; repos never import UI. This is the one mechanism keeping five windows
   consistent — every later view task depends on it.
-- [ ] Tests: signal emission/reception with `pytest-qt`'s `qtbot`.
+- [x] Tests: signal emission/reception with `pytest-qt`'s `qtbot`.
 - **Done when:** two dummy widgets stay in sync through the bus in a test.
 
 ### 2.2 Qt item models
-- [ ] `src/nornir/ui/models/category_tree_model.py` — `QAbstractItemModel` over
-  `CategoryRepo.get_tree()`; roles for name, color (as `QColor` decoration), id,
-  depth. Refreshes on `category_changed`.
-- [ ] `src/nornir/ui/models/task_table_model.py` — `QAbstractTableModel` over a task
+- [x] `src/nornir/ui/models/category_tree_model.py` — `QAbstractItemModel` over
+  `CategoryRepo.get_tree()`; roles for name, color (as `QColor` decoration), and id.
+  Refreshes on `category_changed`; `index_for_id` helper for selection restore.
+- [x] `src/nornir/ui/models/task_table_model.py` — `QAbstractTableModel` over a task
   query; columns: title, category (color-swatched), start, due, priority, status;
-  a decoration role exposing the due-state icon (Phase 3.5 supplies icons).
-- [ ] Tests: model row counts, role data, refresh on bus signal (headless).
+  custom `DUE_STATE_ROLE` exposing the due-state (Phase 3.5 maps it to icons).
+- [x] Tests: model row counts, role data, refresh on bus signal (headless).
 - **Done when:** `QTreeView`/`QTableView` smoke tests render both models offscreen.
 
 ### 2.3 Main window, docking, layout persistence
-- [ ] `src/nornir/ui/main_window.py` — `QMainWindow` acting as dock host. Each view is
-  a `QDockWidget` (dockable, floatable, closable). A `View` menu toggles each window.
-- [ ] Persist layout via `saveState()`/`saveGeometry()` into `app_state` on close and
+- [x] `src/nornir/ui/main_window.py` — `QMainWindow` acting as dock host. Each view is
+  a `QDockWidget` (dockable, floatable, closable) registered via `add_dock_view`.
+  A `View` menu toggles each window. `src/nornir/db/app_state.py` provides the
+  key-value storage.
+- [x] Persist layout via `saveState()`/`saveGeometry()` into `app_state` on close and
   on layout change (debounced); restore on startup; versioned key so a future
   incompatible layout format can fall back to defaults cleanly.
-- [ ] Tests: save → restore round-trip preserves dock arrangement (offscreen).
+- [x] Tests: save → restore round-trip preserves dock arrangement (offscreen).
 - **Done when:** rearranged/floated windows come back identically after restart (P0 #9).
 
 ---

@@ -1,32 +1,36 @@
-"""Application entry point.
+"""Application entry point and bootstrap wiring.
 
-Phase 0 scope: prove the PySide6 stack runs end to end by opening an empty
-main window. The dock-widget shell replaces this in Phase 2.
+Builds the object graph in dependency order (paths -> db -> repos -> bus ->
+window) so everything below the UI stays constructible without Qt.
 """
 
 from __future__ import annotations
 
+import sqlite3
 import sys
 
 from loguru import logger
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication
 
 from nornir import __version__
+from nornir.db.app_state import AppStateRepo
+from nornir.db.connection import connect
+from nornir.infra import paths
 from nornir.infra.logging import configure_logging
+from nornir.ui.events import EventBus
+from nornir.ui.main_window import APP_NAME, MainWindow
 
-APP_NAME = "Nornir"
 
+def build_main_window(
+    conn: sqlite3.Connection, bus: EventBus | None = None
+) -> MainWindow:
+    """Assemble the main window against an open database connection.
 
-def build_main_window() -> QMainWindow:
-    """Construct the (currently empty) main window.
-
-    Kept separate from :func:`main` so tests can build the window against an
-    offscreen QApplication without entering the event loop.
+    Kept separate from :func:`main` so tests can build the window against a
+    temp database and an offscreen QApplication without the event loop.
+    Concrete dock views register here as their phases land.
     """
-    window = QMainWindow()
-    window.setWindowTitle(f"{APP_NAME} {__version__}")
-    window.resize(1024, 640)
-    return window
+    return MainWindow(AppStateRepo(conn), bus or EventBus())
 
 
 def main() -> int:
@@ -35,9 +39,15 @@ def main() -> int:
     logger.info("starting {} {}", APP_NAME, __version__)
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
-    window = build_main_window()
+    conn = connect(paths.db_path())
+    window = build_main_window(conn)
+    if not window.restore_layout():
+        logger.info("no stored window layout; using defaults")
     window.show()
-    return app.exec()
+    try:
+        return app.exec()
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
