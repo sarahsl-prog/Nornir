@@ -10,27 +10,76 @@ import sqlite3
 import sys
 
 from loguru import logger
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from nornir import __version__
 from nornir.db.app_state import AppStateRepo
+from nornir.db.category_repo import CategoryRepo
 from nornir.db.connection import connect
+from nornir.db.task_repo import TaskRepo
 from nornir.infra import paths
 from nornir.infra.logging import configure_logging
-from nornir.ui.events import EventBus
+from nornir.ui.events import ALL_CHANGED, EventBus
 from nornir.ui.main_window import APP_NAME, MainWindow
+from nornir.ui.theming import MidnightNotifier
+from nornir.ui.views.task_detail import TaskDetailWidget
+from nornir.ui.views.task_list import TaskListWidget
+from nornir.ui.views.timeline import TimelineWidget
+from nornir.ui.views.tree_view import TreeViewWidget
 
 
 def build_main_window(
     conn: sqlite3.Connection, bus: EventBus | None = None
 ) -> MainWindow:
-    """Assemble the main window against an open database connection.
+    """Assemble the main window and all dock views against an open database.
 
     Kept separate from :func:`main` so tests can build the window against a
     temp database and an offscreen QApplication without the event loop.
-    Concrete dock views register here as their phases land.
     """
-    return MainWindow(AppStateRepo(conn), bus or EventBus())
+    bus = bus or EventBus()
+    app_state = AppStateRepo(conn)
+    categories = CategoryRepo(conn)
+    tasks = TaskRepo(conn)
+
+    window = MainWindow(app_state, bus)
+    tree = TreeViewWidget(categories, tasks, bus)
+    detail = TaskDetailWidget(tasks, categories, bus)
+    task_list = TaskListWidget(tasks, categories, app_state, bus)
+    timeline = TimelineWidget(tasks, categories, bus)
+
+    window.add_dock_view(
+        "dock_tree", "Tree", tree, Qt.DockWidgetArea.LeftDockWidgetArea
+    )
+    window.add_dock_view(
+        "dock_task_list", "Tasks", task_list, Qt.DockWidgetArea.RightDockWidgetArea
+    )
+    window.add_dock_view(
+        "dock_timeline", "Timeline", timeline, Qt.DockWidgetArea.RightDockWidgetArea
+    )
+    detail_dock = window.add_dock_view(
+        "dock_detail", "Task Detail", detail, Qt.DockWidgetArea.RightDockWidgetArea
+    )
+
+    def open_new_task(category_id: int) -> None:
+        detail.start_new(category_id)
+        detail_dock.show()
+        detail_dock.raise_()
+
+    def open_task(task_id: int) -> None:
+        detail.load_task(task_id)
+        detail_dock.show()
+        detail_dock.raise_()
+
+    tree.task_creation_requested.connect(open_new_task)
+    task_list.task_activated.connect(open_task)
+    timeline.task_activated.connect(open_task)
+
+    # keep derived due states correct across midnight in a long-running app
+    notifier = MidnightNotifier(window)
+    notifier.day_changed.connect(lambda: bus.task_changed.emit(ALL_CHANGED))
+
+    return window
 
 
 def main() -> int:

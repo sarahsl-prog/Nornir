@@ -2,8 +2,8 @@
 
 A personal, offline-first, multi-window task tracker built around a category tree, module/series generation, recurring tasks, and reusable task templates — because nothing on the market combines hierarchy, multi-window layout, and true offline independence.
 
-> Status: **Pre-implementation.** Spec finalized, scaffolding not yet started.
-> Full spec: [`docs/nornir-spec-v2.md`](docs/nornir-spec-v2.md) *(move the spec file into the repo under this path, or update this link)*
+> Status: **In development.** Data layer, Qt shell, and the four core windows (Tree, Task Detail, Task List, Timeline) are implemented; generators (Phase 4) are next. See the [roadmap](#roadmap) and [`docs/implementation-plan.md`](docs/implementation-plan.md).
+> Full spec: [`docs/nornir-spec-v2.md`](docs/nornir-spec-v2.md)
 
 ## What This Is
 
@@ -94,10 +94,10 @@ nornir/
 ## Roadmap
 
 - [x] Data model + SQLite schema
-- [ ] Tree View + category CRUD
-- [ ] Task CRUD + Task Detail/Edit window
-- [ ] Task List View
-- [ ] Timeline View
+- [x] Tree View + category CRUD
+- [x] Task CRUD + Task Detail/Edit window
+- [x] Task List View
+- [x] Timeline View
 - [ ] Module Series Generation
 - [ ] Recurring tasks
 - [ ] Archive (not delete)
