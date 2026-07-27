@@ -42,7 +42,7 @@ checks + docs + clean commit).
 
 | Phase | Theme | Spec items covered |
 |---|---|---|
-| 0 | Scaffolding, tooling, CI-ready test harness | infra for everything |
+| 0 | Scaffolding, tooling, CI + CodeQL code scanning, test harness | infra for everything |
 | 1 | Data layer: schema, migrations, repositories, domain logic | P0 #8, #13 (storage side), foundations of #12 |
 | 2 | Qt application shell: models, event bus, docking, layout persistence | P0 #9 |
 | 3 | Core windows: Tree, Task Detail/Edit, Task List, Timeline | P0 #1–#7, #10, Show Archived |
@@ -88,6 +88,20 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
   copied DB).
 - [ ] Tests: paths resolve, env override works, logging writes a record.
 - **Done when:** unit tests pass; app startup logs a session line to the file sink.
+
+### 0.4 CI workflow + CodeQL code scanning
+- [ ] `.github/workflows/ci.yml` — on push and pull request: set up Python 3.13,
+  install `requirements.txt` + `requirements-dev.txt`, then run the same gates as
+  local pre-commit — `ruff check`, `black --check`, `mypy src/nornir/`,
+  `bandit -r src/nornir/`, and `pytest` with `QT_QPA_PLATFORM=offscreen` (Qt needs
+  the `libegl1`/`libgl1` apt packages on the runner for import to succeed headless).
+- [ ] `.github/workflows/codeql.yml` — CodeQL "advanced setup" for Python: runs on
+  push to `main`, pull requests, and a weekly `schedule`; results surface in the
+  repo's Security → Code scanning tab and as PR checks.
+- [ ] Manual (Sarah, repo Settings → Advanced Security): enable secret scanning +
+  push protection — complements bandit, which doesn't cover pushed secrets.
+- **Done when:** both workflows pass on a PR and a CodeQL analysis appears in the
+  Security tab.
 
 ---
 
