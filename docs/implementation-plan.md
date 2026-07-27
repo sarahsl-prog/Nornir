@@ -163,10 +163,11 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** repo tests pass; recurring behavior matches spec exactly.
 
 ### 1.5 Template repository
-- [ ] `src/nornir/db/template_repo.py` — template CRUD (archive-not-delete applies to
+- [x] `src/nornir/db/template_repo.py` — template CRUD (archive-not-delete applies to
   templates too), item CRUD with ordering, `apply(template_id, category_id, selected_item_ids, base_date)` creating only the selected tasks in one transaction.
-- [ ] Tests: partial selection creates only chosen tasks; applying twice creates
-  independent copies (templates are stamps, not links).
+- [x] Tests: partial selection creates only chosen tasks; applying twice creates
+  independent copies (templates are stamps, not links); rollback when the selection
+  includes a foreign item.
 - **Done when:** repo tests pass.
 
 ### 1.6 Derived-state logic (pure functions)

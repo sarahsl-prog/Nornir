@@ -38,7 +38,9 @@ class TaskRepo:
     # -- reads ---------------------------------------------------------------
 
     def get(self, task_id: int) -> Task:
-        row = self._conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+        row = self._conn.execute(
+            "SELECT * FROM tasks WHERE id = ?", (task_id,)
+        ).fetchone()
         if row is None:
             raise NotFoundError(f"Task {task_id} does not exist.")
         return task_from_row(row)
@@ -66,7 +68,8 @@ class TaskRepo:
                     " WITH RECURSIVE subtree(id) AS ("
                     "  SELECT id FROM categories WHERE id = :category_id"
                     "  UNION ALL"
-                    "  SELECT c.id FROM categories c JOIN subtree s ON c.parent_id = s.id"
+                    "  SELECT c.id FROM categories c"
+                    "  JOIN subtree s ON c.parent_id = s.id"
                     " ) SELECT id FROM subtree)"
                 )
             else:
@@ -233,9 +236,13 @@ class TaskRepo:
             if task.recurrence is None:
                 return None
             next_start = (
-                add_interval(task.start_date, task.recurrence) if task.start_date else None
+                add_interval(task.start_date, task.recurrence)
+                if task.start_date
+                else None
             )
-            next_due = add_interval(task.due_date, task.recurrence) if task.due_date else None
+            next_due = (
+                add_interval(task.due_date, task.recurrence) if task.due_date else None
+            )
             cur = self._conn.execute(
                 "INSERT INTO tasks (category_id, title, description, created_at,"
                 " start_date, due_date, priority, status,"

@@ -70,7 +70,10 @@ class TestCrud:
     def test_due_before_start_refused(self, repo: TaskRepo, category_id: int) -> None:
         with pytest.raises(ValidationError):
             repo.create(
-                category_id, "X", start_date=date(2026, 8, 10), due_date=date(2026, 8, 1)
+                category_id,
+                "X",
+                start_date=date(2026, 8, 10),
+                due_date=date(2026, 8, 1),
             )
 
     def test_update_preserves_unspecified_fields(
@@ -117,7 +120,9 @@ class TestListFilters:
         in_child = repo.create(child.id, "in child")
         in_root = repo.create(category_id, "in root")
         direct_only = repo.list_tasks(category_id=category_id)
-        with_subtree = repo.list_tasks(category_id=category_id, include_descendants=True)
+        with_subtree = repo.list_tasks(
+            category_id=category_id, include_descendants=True
+        )
         assert {t.id for t in direct_only} == {in_root.id}
         assert {t.id for t in with_subtree} == {in_root.id, in_child.id}
 
