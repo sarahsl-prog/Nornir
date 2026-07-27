@@ -20,7 +20,9 @@ from nornir.db.connection import connect
 from nornir.db.task_repo import TaskRepo
 from nornir.infra import paths
 from nornir.infra.logging import configure_logging
+from nornir.ui.dialogs.apply_template import ApplyTemplateDialog
 from nornir.ui.dialogs.series_dialog import SeriesDialog
+from nornir.ui.dialogs.template_library import TemplateLibraryDialog
 from nornir.ui.events import ALL_CHANGED, EventBus
 from nornir.ui.main_window import APP_NAME, MainWindow
 from nornir.ui.theming import MidnightNotifier
@@ -75,10 +77,20 @@ def build_main_window(
     def open_series_dialog(category_id: int) -> None:
         SeriesDialog(conn, category_id, bus, window).exec()
 
+    def open_apply_template(category_id: int) -> None:
+        ApplyTemplateDialog(conn, category_id, bus, window).exec()
+
+    def open_template_library() -> None:
+        TemplateLibraryDialog(conn, bus, window).exec()
+
     tree.task_creation_requested.connect(open_new_task)
     tree.module_series_requested.connect(open_series_dialog)
+    tree.apply_template_requested.connect(open_apply_template)
     task_list.task_activated.connect(open_task)
     timeline.task_activated.connect(open_task)
+
+    templates_menu = window.menuBar().addMenu("&Templates")
+    templates_menu.addAction("Manage Templates…", open_template_library)
 
     # keep derived due states correct across midnight in a long-running app
     notifier = MidnightNotifier(window)

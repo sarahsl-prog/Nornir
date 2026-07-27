@@ -51,9 +51,9 @@ class SeriesResult:
 
 
 def slot_date(start: date, interval: int, unit: RecurrenceUnit, index: int) -> date:
-    """Date of the ``index``-th module (0-based): start + index × interval.
+    """Date of the ``index``-th module (0-based): start + index x interval.
 
-    Month math multiplies before adding (start + k×N months from the original
+    Month math multiplies before adding (start + kxN months from the original
     base) so month-end clamping never compounds across slots.
     """
     if index == 0:

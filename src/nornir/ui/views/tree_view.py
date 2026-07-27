@@ -81,11 +81,9 @@ class TreeViewWidget(QWidget):
         menu.addAction(
             "New Module Series…", lambda: self.module_series_requested.emit(category_id)
         )
-        template = menu.addAction(
+        menu.addAction(
             "Apply Template…", lambda: self.apply_template_requested.emit(category_id)
         )
-        template.setEnabled(False)
-        template.setToolTip("Coming in Phase 4")
         menu.addSeparator()
         menu.addAction("Edit…", lambda: self.edit_category_flow(category_id))
         menu.addAction("Move Up", lambda: self.move_in_siblings(category_id, -1))

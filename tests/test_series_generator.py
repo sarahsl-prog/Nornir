@@ -55,7 +55,9 @@ def template_id(conn: sqlite3.Connection) -> int:
     return t.id
 
 
-def spec_for(course_id: int, template_id: int | None, **overrides: object) -> SeriesSpec:
+def spec_for(
+    course_id: int, template_id: int | None, **overrides: object
+) -> SeriesSpec:
     defaults: dict[str, object] = {
         "parent_category_id": course_id,
         "base_name": "Module",
@@ -196,10 +198,10 @@ class TestDialog:
         dialog._template.setCurrentIndex(1)
         dialog._count.setValue(8)
         assert "8 sub-categories" in dialog.preview_text()
-        assert "× 2 tasks = 16 tasks" in dialog.preview_text()
+        assert "x 2 tasks = 16 tasks" in dialog.preview_text()
 
         dialog._template.setCurrentIndex(0)
-        assert "× 0 tasks = 0 tasks" in dialog.preview_text()
+        assert "x 0 tasks = 0 tasks" in dialog.preview_text()
 
     def test_dialog_spec_round_trip(
         self,

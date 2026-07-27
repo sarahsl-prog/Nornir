@@ -106,7 +106,7 @@ class SeriesDialog(QDialog):
         stem = self._name_edit.text().strip() or "Module"
         text = (
             f'Will create {count} sub-categories ("{stem} 1"…"{stem} {count}")'
-            f" × {item_count} tasks = {count * item_count} tasks."
+            f" x {item_count} tasks = {count * item_count} tasks."
         )
         self._preview.setText(text)
 

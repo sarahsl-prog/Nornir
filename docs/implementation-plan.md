@@ -309,14 +309,15 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** P0 #11 matches the spec's two-layer definition exactly.
 
 ### 4.3 Task Template Library
-- [ ] `src/nornir/ui/dialogs/template_library.py` — manage templates: create/rename/
-  archive templates, add/edit/reorder/remove items. Reachable from a main-window
-  menu.
-- [ ] `src/nornir/ui/dialogs/apply_template.py` — from tree context menu "Apply
+- [x] `src/nornir/ui/dialogs/template_library.py` — manage templates: create/rename/
+  archive templates, add/edit/reorder/remove items. Reachable from the main window's
+  Templates menu.
+- [x] `src/nornir/ui/dialogs/apply_template.py` — from tree context menu "Apply
   Template…": pick template → checklist of its items **with per-item checkboxes**
   (all pre-checked), base date field → creates only checked items via
   `TemplateRepo.apply`. This is the SR workflow from the spec.
-- [ ] Tests: partial application; library edits don't affect previously created tasks.
+- [x] Tests: partial application; library edits don't affect previously created tasks
+  (covered at repo level in 1.5); bus notification on changes.
 - **Done when:** P0 #14 demonstrable ("Network SR" scenario from the spec works).
 
 ### 4.4 Archive UX pass
