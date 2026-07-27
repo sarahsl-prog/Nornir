@@ -37,16 +37,19 @@ This app is built and run identically in two places:
 | **Home** | Native Linux or WSL — flexible |
 | **Work** | Windows 11 laptop, runs via **WSL2 + WSLg**. IT blocks non-allowlisted Windows executables, so the app runs as a Linux process (`python3 app.py`) and is displayed on the Windows desktop via WSLg — never as an installed Windows binary. |
 
+Full setup, the WSLg validation checklist, and the home ↔ work database
+migration procedure live in [`docs/deployment.md`](docs/deployment.md).
+
 ### Offline package installation (work environment)
 
-The work environment can't reach PyPI directly (certificate errors). Packages are installed from a pre-built offline wheelhouse instead:
+The work environment can't reach PyPI directly (certificate errors). Packages are installed from a pre-built offline wheelhouse instead — two scripts wrap the whole flow, including Python-version/platform guards and a post-install smoke check:
 
 ```bash
-# On an unrestricted machine — build the wheelhouse
-pip download -d wheelhouse -r requirements.txt
+# On an unrestricted machine — build the wheelhouse (~250 MB, wheels only)
+scripts/build_wheelhouse.sh           # add --dev to include the test toolchain
 
 # Transfer the wheelhouse/ folder to the work machine, then:
-pip install --no-index --find-links=./wheelhouse -r requirements.txt
+scripts/install_offline.sh            # creates .venv, installs with --no-index, smoke-checks
 ```
 
 **Important:** PySide6 ships compiled binary wheels, not pure Python — the wheelhouse must be built for the exact same platform/architecture (Linux x86_64) **and the same Python minor version** as the work WSL distro. Pin and document the Python version below before building the wheelhouse, to avoid rebuilding it after a version mismatch.
@@ -84,9 +87,11 @@ python3 app.py
 nornir/
 ├── app.py                  # thin shim → nornir.app:main
 ├── requirements.txt
+├── scripts/                # wheelhouse build + offline install
 ├── docs/
 │   ├── nornir-spec-v2.md
-│   └── implementation-plan.md
+│   ├── implementation-plan.md
+│   └── deployment.md       # WSLg checklist + DB migration procedure
 └── src/
     └── nornir/             # application package (src-layout)
 ```

@@ -384,21 +384,29 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 6 — Packaging & Deployment
 
 ### 6.1 Offline wheelhouse tooling
-- [ ] `scripts/build_wheelhouse.sh` — runs on the unrestricted machine:
-  `pip download -d wheelhouse -r requirements.txt --python-version 3.13 --platform manylinux_2_28_x86_64 --only-binary=:all:` (exact tags verified against PySide6's published wheels at implementation time).
-- [ ] `scripts/install_offline.sh` — the `--no-index --find-links` install, plus a
-  post-install smoke check (`python -c "import PySide6; import nornir"`).
-- [ ] README: replace `TBD` pin with 3.13; document the deadsnakes/install step for a
-  work distro that lacks 3.13.
+- [x] `scripts/build_wheelhouse.sh` — runs on the unrestricted machine:
+  `pip download --dest wheelhouse --only-binary=:all: -r requirements.txt`, guarded by
+  an interpreter check that refuses anything but Python 3.13 on Linux x86_64 (a
+  mismatched wheelhouse is useless on the work machine). `--dev` adds the test
+  toolchain. Downloading with the *target* interpreter is more reliable than
+  `--python-version/--platform` tag juggling for PySide6's ABI3 wheels.
+- [x] `scripts/install_offline.sh` — creates `.venv` if absent, runs the
+  `--no-index --find-links` install, plus a post-install smoke check importing
+  `PySide6.QtWidgets` (proves the compiled Qt libs load) and `nornir.app`.
+- [x] README: pin documented as 3.13; offline section now points at the two scripts.
 - **Done when:** wheelhouse built on one machine installs cleanly into a fresh 3.13
   venv with networking disabled.
 
 ### 6.2 WSLg validation checklist (manual, on the work laptop)
-- [ ] Documented checklist in `docs/deployment.md`: window docking/floating behavior
-  under WSLg, multi-window focus, always-on-top for sidebar mode, layout
-  persistence across WSL restarts, DB file location inside the WSL filesystem (not
-  `/mnt/c` — I/O performance), and the raw-`.db`-copy migration procedure
-  (home ↔ work) with the "close the app first" warning (WAL files).
+- [x] Documented checklist in `docs/deployment.md`: prerequisites, both install
+  paths, window docking/floating behavior under WSLg, multi-window focus,
+  always-on-top for sidebar mode, layout persistence across WSL restarts (incl.
+  `wsl --shutdown`), DB file location inside the WSL filesystem (not
+  `/mnt/c` — I/O performance and unreliable locking for WAL), the raw-`.db`-copy
+  migration procedure (home ↔ work) with the "close the app first" WAL warning,
+  JSON-restore procedure, and a troubleshooting section.
+- [ ] **Manual (Sarah):** run the checklist once on the work laptop and note any
+  WSLg-specific rough edges (always-on-top for sidebar mode is the likeliest).
 - **Done when:** checklist exists and has been run once on the work machine.
 
 ---
