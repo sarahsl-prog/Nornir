@@ -180,3 +180,39 @@ class TestEditMode:
         assert [n.body for n in tasks.notes(task.id)] == ["first note"]
         assert len(widget.notes_texts()) == 1
         assert "first note" in widget.notes_texts()[0]
+
+
+class TestCalendarAtTop:
+    def test_calendar_open_in_create_mode(
+        self, widget: TaskDetailWidget, categories: CategoryRepo
+    ) -> None:
+        cat = categories.create("C", COLOR)
+        widget._reload_categories()
+        widget.start_new(cat.id)
+        assert widget._calendar_toggle.isChecked()
+
+    def test_calendar_collapsed_in_edit_mode(
+        self,
+        widget: TaskDetailWidget,
+        categories: CategoryRepo,
+        tasks: TaskRepo,
+    ) -> None:
+        cat = categories.create("C", COLOR)
+        task = tasks.create(cat.id, "T")
+        widget._reload_categories()
+        widget.load_task(task.id)
+        assert not widget._calendar_toggle.isChecked()
+
+    def test_calendar_click_sets_due_date(
+        self, widget: TaskDetailWidget, categories: CategoryRepo
+    ) -> None:
+        from PySide6.QtCore import QDate
+
+        cat = categories.create("C", COLOR)
+        widget._reload_categories()
+        widget.start_new(cat.id)
+        assert not widget._due_check.isChecked()
+
+        widget._on_calendar_clicked(QDate(2026, 8, 14))
+        assert widget._due_check.isChecked()
+        assert widget._due_date.date().toPython() == date(2026, 8, 14)

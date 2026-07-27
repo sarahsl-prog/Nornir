@@ -15,8 +15,9 @@ from __future__ import annotations
 
 from datetime import date
 
-from PySide6.QtCore import QDate, Signal
+from PySide6.QtCore import QDate, Qt, Signal
 from PySide6.QtWidgets import (
+    QCalendarWidget,
     QCheckBox,
     QComboBox,
     QDateEdit,
@@ -29,6 +30,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QSpinBox,
+    QToolButton,
     QWidget,
 )
 
@@ -117,7 +119,20 @@ class TaskDetailWidget(QWidget):
         self._save_button = QPushButton("Save")
         self._save_button.clicked.connect(self.save)
 
+        # calendar-at-top for fast due-date picking during creation (P1 #17);
+        # collapsible so the edit form stays compact
+        self._calendar_toggle = QToolButton()
+        self._calendar_toggle.setText("Calendar")
+        self._calendar_toggle.setCheckable(True)
+        self._calendar_toggle.setArrowType(Qt.ArrowType.RightArrow)
+        self._calendar = QCalendarWidget()
+        self._calendar.setVisible(False)
+        self._calendar_toggle.toggled.connect(self._on_calendar_toggled)
+        self._calendar.clicked.connect(self._on_calendar_clicked)
+
         form = QFormLayout(self)
+        form.addRow(self._calendar_toggle)
+        form.addRow(self._calendar)
         form.addRow("Title:", self._title)
         form.addRow("Category:", self._category)
         form.addRow("Created:", self._created_label)
@@ -158,6 +173,8 @@ class TaskDetailWidget(QWidget):
         """
         self._task_id = None
         today = date.today()
+        self._calendar.setSelectedDate(_to_qdate(today))  # current month view
+        self._calendar_toggle.setChecked(True)
         self._title.clear()
         self._title.setFocus()
         self._select_category(category_id)
@@ -182,6 +199,7 @@ class TaskDetailWidget(QWidget):
             QMessageBox.warning(self, "Nornir", str(error))
             return
         self._task_id = task_id
+        self._calendar_toggle.setChecked(False)  # keep the edit form compact
         self._title.setText(task.title)
         self._select_category(task.category_id)
         self._created_label.setText(task.created_at.date().isoformat())
@@ -263,6 +281,19 @@ class TaskDetailWidget(QWidget):
         self._set_notes_enabled(True)
         self._bus.task_changed.emit(ALL_CHANGED)
         self.saved.emit(task.id)
+
+    # -- calendar ------------------------------------------------------------
+
+    def _on_calendar_toggled(self, checked: bool) -> None:
+        self._calendar.setVisible(checked)
+        self._calendar_toggle.setArrowType(
+            Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow
+        )
+
+    def _on_calendar_clicked(self, qdate: QDate) -> None:
+        """A calendar click sets (and enables) the due date."""
+        self._due_check.setChecked(True)
+        self._due_date.setDate(qdate)
 
     # -- notes ---------------------------------------------------------------
 
