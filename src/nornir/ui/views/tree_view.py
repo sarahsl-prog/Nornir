@@ -112,9 +112,7 @@ class TreeViewWidget(QWidget):
     def create_category(self, parent_id: int | None, name: str, color: str) -> None:
         try:
             siblings = [
-                c
-                for c in self._categories.get_tree()
-                if c.parent_id == parent_id
+                c for c in self._categories.get_tree() if c.parent_id == parent_id
             ]
             position = max((c.position for c in siblings), default=-1) + 1
             created = self._categories.create(

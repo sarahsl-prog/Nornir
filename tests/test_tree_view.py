@@ -32,9 +32,7 @@ def tasks(conn: sqlite3.Connection) -> TaskRepo:
 
 
 @pytest.fixture
-def widget(
-    qtbot: QtBot, categories: CategoryRepo, tasks: TaskRepo
-) -> TreeViewWidget:
+def widget(qtbot: QtBot, categories: CategoryRepo, tasks: TaskRepo) -> TreeViewWidget:
     w = TreeViewWidget(categories, tasks, EventBus())
     qtbot.addWidget(w)
     return w
@@ -138,7 +136,9 @@ class TestCategoryOperations:
         tasks.create(child.id, "T")
         questions: list[str] = []
 
-        def fake_question(*args: object, **kwargs: object) -> QMessageBox.StandardButton:
+        def fake_question(
+            *args: object, **kwargs: object
+        ) -> QMessageBox.StandardButton:
             questions.append(str(args[2]))
             return QMessageBox.StandardButton.Yes
 
