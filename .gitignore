@@ -1,0 +1,23 @@
+# Environments & secrets
+.venv/
+.env
+
+# Python build/runtime artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Offline package staging (built per-machine, never committed)
+wheelhouse/
+
+# Local databases (live under the platformdirs data dir, but just in case)
+*.db
+*.db-wal
+*.db-shm

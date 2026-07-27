@@ -1,0 +1,8 @@
+-r requirements.txt
+pytest>=8.3
+pytest-qt>=4.4
+mypy>=1.13
+ruff>=0.8
+black>=24.10
+bandit>=1.8
+pre-commit>=4.0

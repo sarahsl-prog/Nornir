@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nornir-tracker"
+version = "0.1.0"
+description = "Personal, offline-first, multi-window task tracker"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "PySide6>=6.7",
+    "loguru>=0.7.2",
+    "platformdirs>=4.3",
+]
+
+[project.scripts]
+nornir = "nornir.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -58,14 +58,16 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 0 — Scaffolding & Tooling
 
 ### 0.1 Repository skeleton and packaging config
-- [ ] Create `pyproject.toml`: project metadata, `requires-python = ">=3.13,<3.14"`,
+- [x] Create `pyproject.toml`: project metadata, `requires-python = ">=3.13,<3.14"`,
   src-layout (`[tool.setuptools]` / hatchling `packages = ["src/nornir"]`), console
-  entry point `nornir = nornir.app:main`.
-- [ ] Create `src/nornir/__init__.py` (holds `__version__`), `src/nornir/app.py` with a
+  entry point `nornir = nornir.app:main`. (Distribution named `nornir-tracker` to
+  avoid clashing with the unrelated `nornir` package on PyPI; the import package is
+  still `nornir`.)
+- [x] Create `src/nornir/__init__.py` (holds `__version__`), `src/nornir/app.py` with a
   `main()` that opens an empty `QMainWindow` — proves the stack runs end to end.
-- [ ] Keep root `app.py` as a thin shim (`from nornir.app import main; main()`) so the
+- [x] Keep root `app.py` as a thin shim (`from nornir.app import main; main()`) so the
   README's `python3 app.py` invocation keeps working.
-- [ ] `requirements.txt` (runtime: `PySide6`, `loguru`, `platformdirs`) and
+- [x] `requirements.txt` (runtime: `PySide6`, `loguru`, `platformdirs`) and
   `requirements-dev.txt` (`pytest`, `pytest-qt`, `mypy`, `ruff`, `black`, `bandit`,
   `pre-commit`).
 - **Done when:** `pip install -e .` succeeds and `python3 app.py` opens a window.
