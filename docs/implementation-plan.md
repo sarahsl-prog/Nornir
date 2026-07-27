@@ -73,11 +73,13 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** `pip install -e .` succeeds and `python3 app.py` opens a window.
 
 ### 0.2 Quality tooling
-- [ ] Configure in `pyproject.toml`: `ruff` (lint + import sorting), `black`, `mypy`
+- [x] Configure in `pyproject.toml`: `ruff` (lint + import sorting), `black`, `mypy`
   strict (`strict = true`, `packages = ["nornir"]`), `bandit` target `src/nornir`.
-- [ ] `.pre-commit-config.yaml` running ruff, black, mypy, bandit.
-- [ ] `pytest` config: `testpaths = ["tests"]`; set `QT_QPA_PLATFORM=offscreen` in test
-  env so GUI tests run headless (works in WSL and CI alike).
+- [x] `.pre-commit-config.yaml` running ruff, black, mypy, bandit — as `language:
+  system` hooks against the venv tools, since the work machine can't build
+  pre-commit's own isolated environments offline.
+- [x] `pytest` config: `testpaths = ["tests"]`; `QT_QPA_PLATFORM=offscreen` set in
+  `tests/conftest.py` so GUI tests run headless (works in WSL and CI alike).
 - **Done when:** `pre-commit run --all-files` passes on the skeleton.
 
 ### 0.3 Logging and app-paths module

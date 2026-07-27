@@ -19,3 +19,28 @@ nornir = "nornir.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Defaults plus: import sorting, modern-syntax upgrades, bugbear, simplifications
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.black]
+target-version = ["py313"]
+
+[tool.mypy]
+strict = true
+python_version = "3.13"
+mypy_path = "src"
+packages = ["nornir"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.bandit]
+targets = ["src/nornir"]
