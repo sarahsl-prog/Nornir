@@ -58,9 +58,7 @@ class TestOncePerDay:
 
 
 class TestBuckets:
-    def test_bucketing(
-        self, tasks: TaskRepo, category_id: int
-    ) -> None:
+    def test_bucketing(self, tasks: TaskRepo, category_id: int) -> None:
         tasks.create(category_id, "overdue", due_date=TODAY - timedelta(days=1))
         tasks.create(category_id, "today", due_date=TODAY)
         tasks.create(category_id, "soon", due_date=TODAY + timedelta(days=2))

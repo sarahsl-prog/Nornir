@@ -9,6 +9,7 @@ from __future__ import annotations
 import sqlite3
 import sys
 from datetime import date
+from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import Qt
@@ -19,9 +20,11 @@ from nornir.db.app_state import AppStateRepo
 from nornir.db.category_repo import CategoryRepo
 from nornir.db.connection import connect
 from nornir.db.task_repo import TaskRepo
+from nornir.domain.errors import NornirError
 from nornir.infra import paths
 from nornir.infra.logging import configure_logging
 from nornir.services.daily_summary import build_summary, mark_shown, should_show
+from nornir.services.json_io import export_to_path, import_from_path
 from nornir.ui.dialogs.apply_template import ApplyTemplateDialog
 from nornir.ui.dialogs.daily_summary_dialog import DailySummaryDialog
 from nornir.ui.dialogs.series_dialog import SeriesDialog
@@ -123,6 +126,39 @@ def build_main_window(
 
     templates_menu = window.menuBar().addMenu("&Templates")
     templates_menu.addAction("Manage Templates…", open_template_library)
+
+    def export_json() -> None:
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        filename, _ = QFileDialog.getSaveFileName(
+            window, "Export JSON backup", "nornir-backup.json", "JSON files (*.json)"
+        )
+        if not filename:
+            return
+        try:
+            export_to_path(conn, Path(filename))
+        except (NornirError, OSError) as error:
+            QMessageBox.warning(window, "Nornir", str(error))
+
+    def import_json() -> None:
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        filename, _ = QFileDialog.getOpenFileName(
+            window, "Import JSON backup", "", "JSON files (*.json)"
+        )
+        if not filename:
+            return
+        try:
+            import_from_path(conn, Path(filename))
+        except NornirError as error:
+            QMessageBox.warning(window, "Nornir", str(error))
+            return
+        bus.category_changed.emit(ALL_CHANGED)
+        bus.task_changed.emit(ALL_CHANGED)
+
+    file_menu = window.menuBar().addMenu("&File")
+    file_menu.addAction("Export JSON Backup…", export_json)
+    file_menu.addAction("Import JSON Backup…", import_json)
 
     sidebar = SidebarWidget(tasks, categories, bus)
     window.set_sidebar_widget(sidebar)
