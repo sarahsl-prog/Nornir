@@ -51,7 +51,7 @@ pip install --no-index --find-links=./wheelhouse -r requirements.txt
 
 **Important:** PySide6 ships compiled binary wheels, not pure Python — the wheelhouse must be built for the exact same platform/architecture (Linux x86_64) **and the same Python minor version** as the work WSL distro. Pin and document the Python version below before building the wheelhouse, to avoid rebuilding it after a version mismatch.
 
-- Python version (pin this): `TBD`
+- Python version (pin this): **3.13** — install via deadsnakes PPA (or equivalent) if the work WSL distro doesn't ship it
 
 Whisper model weights aren't pip packages — they're separate downloaded files. Copy them into the model cache directory on the work machine using the same offline-transfer approach.
 
@@ -78,16 +78,17 @@ python3 app.py
 
 ## Project Structure
 
-*(to be filled in as scaffolding takes shape)*
+*(planned — see [`docs/implementation-plan.md`](docs/implementation-plan.md))*
 
 ```
 nornir/
-├── app.py
+├── app.py                  # thin shim → nornir.app:main
 ├── requirements.txt
 ├── docs/
-│   └── nornir-spec-v2.md
+│   ├── nornir-spec-v2.md
+│   └── implementation-plan.md
 └── src/
-    └── ...
+    └── nornir/             # application package (src-layout)
 ```
 
 ## Roadmap

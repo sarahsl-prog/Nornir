@@ -39,8 +39,8 @@ A personal, offline-first, multi-window task tracker built around a category tre
 pre-commit run --all-files    # Run all checks (ruff, black, mypy, bandit)
 ruff check --fix .            # Lint and auto-fix
 black .                       # Format
-mypy assistant/               # Type check
-bandit -r assistant/          # Security static analysis
+mypy src/nornir/              # Type check
+bandit -r src/nornir/         # Security static analysis
 ```
 
 ---
