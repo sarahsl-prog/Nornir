@@ -282,47 +282,52 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 4 — Generators & Templates (P0)
 
 ### 4.1 Recurring tasks UI surface
-- [ ] Recurrence editor already on the detail form (3.2); this task wires completion
-  paths (list context menu, detail status change) through `TaskRepo.complete_task`
+- [x] Recurrence editor already on the detail form (3.2); completion paths (list
+  context menu) route through `TaskRepo.complete_task` (wired in 3.3)
   so the roll-forward fires from anywhere; successor appears via `task_changed`.
-- [ ] A subtle "↻ every N unit" badge in list/timeline rows.
-- [ ] Tests (UI level): completing a recurring task from the list shows the successor
+- [x] A subtle "↻" badge on list/timeline rows with the full "every N unit" rule as
+  the tooltip.
+- [x] Tests (UI level): completing a recurring task from the list shows the successor
   with advanced dates.
 - **Done when:** P0 #12 demonstrable end to end.
 
 ### 4.2 Module Series Generation
-- [ ] `src/nornir/services/series_generator.py` — pure service:
+- [x] `src/nornir/services/series_generator.py` — pure service:
   inputs `(parent_category_id, base_name, count, start_date, interval_n, interval_unit, template_id)`.
   In one transaction: create sub-categories "Base 1"…"Base N" (each slot's date =
-  `start_date + (i-1) × interval`), then stamp **all** items of the chosen template
-  into each module with start/due derived from that module's slot date. Depth
-  validated up front (parent must be ≤ depth 3).
-- [ ] `src/nornir/ui/dialogs/series_dialog.py` — launched from tree context menu:
+  `start_date + (i-1) × interval`, month math multiplied not iterated so clamping
+  never compounds), then stamp **all** items of the chosen template
+  into each module with start/due set to that module's slot date. Depth
+  validated up front (parent must be ≤ depth 3); modules inherit the parent color.
+- [x] `src/nornir/ui/dialogs/series_dialog.py` — launched from tree context menu:
   parent (prefilled), name stem, count, interval (N + unit), start date, template
-  picker, and a preview pane ("will create 8 sub-categories × 4 tasks = 32 tasks")
-  before OK.
-- [ ] Tests: service-level — correct category count, per-module dates, template
+  picker (or "categories only"), and a live preview ("Will create 8 sub-categories ×
+  2 tasks = 16 tasks") before OK.
+- [x] Tests: service-level — correct category count, per-module dates, template
   stamped fully on each, transaction rolls back wholly on failure; dialog-level —
-  preview math.
+  preview math and spec round-trip.
 - **Done when:** P0 #11 matches the spec's two-layer definition exactly.
 
 ### 4.3 Task Template Library
-- [ ] `src/nornir/ui/dialogs/template_library.py` — manage templates: create/rename/
-  archive templates, add/edit/reorder/remove items. Reachable from a main-window
-  menu.
-- [ ] `src/nornir/ui/dialogs/apply_template.py` — from tree context menu "Apply
+- [x] `src/nornir/ui/dialogs/template_library.py` — manage templates: create/rename/
+  archive templates, add/edit/reorder/remove items. Reachable from the main window's
+  Templates menu.
+- [x] `src/nornir/ui/dialogs/apply_template.py` — from tree context menu "Apply
   Template…": pick template → checklist of its items **with per-item checkboxes**
   (all pre-checked), base date field → creates only checked items via
   `TemplateRepo.apply`. This is the SR workflow from the spec.
-- [ ] Tests: partial application; library edits don't affect previously created tasks.
+- [x] Tests: partial application; library edits don't affect previously created tasks
+  (covered at repo level in 1.5); bus notification on changes.
 - **Done when:** P0 #14 demonstrable ("Network SR" scenario from the spec works).
 
 ### 4.4 Archive UX pass
-- [ ] Sweep: every "delete-like" affordance is labeled **Archive**; no code path issues
-  a `DELETE` on categories/tasks/templates (enforced by a repo-layer test asserting
-  row counts never drop).
-- [ ] Unarchive available from Task List (toggle view) and tree archived view.
-- [ ] Tests: archive → hidden from all four active views; unarchive → returns.
+- [x] Sweep: every "delete-like" affordance is labeled **Archive**; no code path issues
+  a `DELETE` on categories/tasks/templates — enforced by a static source scan test
+  (only `template_items` may be deleted) plus row-count assertions.
+- [x] Unarchive available from Task List (Show Archived toggle) and via
+  `CategoryRepo.unarchive`.
+- [x] Tests: archive → hidden from tree, list, and timeline; unarchive → returns;
+  no "delete" labels in any context menu.
 - **Done when:** P0 #13 holds app-wide.
 
 ---

@@ -60,8 +60,8 @@ class TestContextMenu:
             "Archive…",
         ]
         by_text = {a.text(): a for a in menu.actions()}
-        assert not by_text["New Module Series…"].isEnabled()  # Phase 4
-        assert not by_text["Apply Template…"].isEnabled()  # Phase 4
+        assert by_text["New Module Series…"].isEnabled()
+        assert by_text["Apply Template…"].isEnabled()
 
     def test_new_task_emits_request(
         self, qtbot: QtBot, widget: TreeViewWidget, categories: CategoryRepo
