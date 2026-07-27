@@ -52,8 +52,12 @@ def export_data(conn: sqlite3.Connection) -> dict[str, Any]:
             "due_date": task.due_date.isoformat() if task.due_date else None,
             "priority": task.priority.value,
             "status": task.status.value,
-            "recurrence_interval": task.recurrence.interval if task.recurrence else None,
-            "recurrence_unit": task.recurrence.unit.value if task.recurrence else None,
+            "recurrence_interval": (
+                task.recurrence.interval if task.recurrence else None
+            ),
+            "recurrence_unit": (
+                task.recurrence.unit.value if task.recurrence else None
+            ),
             "archived_at": (
                 task.archived_at.isoformat(timespec="seconds")
                 if task.archived_at
@@ -195,7 +199,9 @@ def import_data(conn: sqlite3.Connection, data: dict[str, Any]) -> None:
                     (task_id, note["body"], note["created_at"]),
                 )
             except (sqlite3.Error, KeyError, TypeError) as error:
-                raise ValidationError(f"Invalid note on task {task_id}: {error}") from error
+                raise ValidationError(
+                    f"Invalid note on task {task_id}: {error}"
+                ) from error
 
     with conn:
         for category in data.get("categories", []):
