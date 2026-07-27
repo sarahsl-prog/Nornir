@@ -384,12 +384,16 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 6 — Packaging & Deployment
 
 ### 6.1 Offline wheelhouse tooling
-- [ ] `scripts/build_wheelhouse.sh` — runs on the unrestricted machine:
-  `pip download -d wheelhouse -r requirements.txt --python-version 3.13 --platform manylinux_2_28_x86_64 --only-binary=:all:` (exact tags verified against PySide6's published wheels at implementation time).
-- [ ] `scripts/install_offline.sh` — the `--no-index --find-links` install, plus a
-  post-install smoke check (`python -c "import PySide6; import nornir"`).
-- [ ] README: replace `TBD` pin with 3.13; document the deadsnakes/install step for a
-  work distro that lacks 3.13.
+- [x] `scripts/build_wheelhouse.sh` — runs on the unrestricted machine:
+  `pip download --dest wheelhouse --only-binary=:all: -r requirements.txt`, guarded by
+  an interpreter check that refuses anything but Python 3.13 on Linux x86_64 (a
+  mismatched wheelhouse is useless on the work machine). `--dev` adds the test
+  toolchain. Downloading with the *target* interpreter is more reliable than
+  `--python-version/--platform` tag juggling for PySide6's ABI3 wheels.
+- [x] `scripts/install_offline.sh` — creates `.venv` if absent, runs the
+  `--no-index --find-links` install, plus a post-install smoke check importing
+  `PySide6.QtWidgets` (proves the compiled Qt libs load) and `nornir.app`.
+- [x] README: pin documented as 3.13; offline section now points at the two scripts.
 - **Done when:** wheelhouse built on one machine installs cleanly into a fresh 3.13
   venv with networking disabled.
 
