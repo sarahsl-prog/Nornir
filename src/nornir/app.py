@@ -26,6 +26,7 @@ from nornir.ui.dialogs.template_library import TemplateLibraryDialog
 from nornir.ui.events import ALL_CHANGED, EventBus
 from nornir.ui.main_window import APP_NAME, MainWindow
 from nornir.ui.theming import MidnightNotifier
+from nornir.ui.views.priority_widget import PriorityWidget
 from nornir.ui.views.task_detail import TaskDetailWidget
 from nornir.ui.views.task_list import TaskListWidget
 from nornir.ui.views.timeline import TimelineWidget
@@ -50,9 +51,13 @@ def build_main_window(
     detail = TaskDetailWidget(tasks, categories, bus)
     task_list = TaskListWidget(tasks, categories, app_state, bus)
     timeline = TimelineWidget(tasks, categories, bus)
+    priority = PriorityWidget(tasks, categories, bus)
 
     window.add_dock_view(
         "dock_tree", "Tree", tree, Qt.DockWidgetArea.LeftDockWidgetArea
+    )
+    window.add_dock_view(
+        "dock_priority", "Priority", priority, Qt.DockWidgetArea.LeftDockWidgetArea
     )
     window.add_dock_view(
         "dock_task_list", "Tasks", task_list, Qt.DockWidgetArea.RightDockWidgetArea
@@ -88,6 +93,7 @@ def build_main_window(
     tree.apply_template_requested.connect(open_apply_template)
     task_list.task_activated.connect(open_task)
     timeline.task_activated.connect(open_task)
+    priority.task_activated.connect(open_task)
 
     templates_menu = window.menuBar().addMenu("&Templates")
     templates_menu.addAction("Manage Templates…", open_template_library)
