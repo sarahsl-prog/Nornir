@@ -27,6 +27,7 @@ from nornir.ui.events import ALL_CHANGED, EventBus
 from nornir.ui.main_window import APP_NAME, MainWindow
 from nornir.ui.theming import MidnightNotifier
 from nornir.ui.views.priority_widget import PriorityWidget
+from nornir.ui.views.sidebar import SidebarWidget
 from nornir.ui.views.task_detail import TaskDetailWidget
 from nornir.ui.views.task_list import TaskListWidget
 from nornir.ui.views.timeline import TimelineWidget
@@ -75,6 +76,9 @@ def build_main_window(
         detail_dock.raise_()
 
     def open_task(task_id: int) -> None:
+        # activating a task from the sidebar restores the full layout first
+        if window.layout_mode() == "sidebar":
+            window.exit_sidebar_mode()
         detail.load_task(task_id)
         detail_dock.show()
         detail_dock.raise_()
@@ -98,6 +102,11 @@ def build_main_window(
     templates_menu = window.menuBar().addMenu("&Templates")
     templates_menu.addAction("Manage Templates…", open_template_library)
 
+    sidebar = SidebarWidget(tasks, categories, bus)
+    window.set_sidebar_widget(sidebar)
+    sidebar.restore_requested.connect(window.exit_sidebar_mode)
+    sidebar.task_activated.connect(open_task)
+
     # keep derived due states correct across midnight in a long-running app
     notifier = MidnightNotifier(window)
     notifier.day_changed.connect(lambda: bus.task_changed.emit(ALL_CHANGED))
@@ -115,6 +124,7 @@ def main() -> int:
     window = build_main_window(conn)
     if not window.restore_layout():
         logger.info("no stored window layout; using defaults")
+    window.apply_stored_mode()  # may re-enter sidebar mode from last session
     window.show()
     try:
         return app.exec()

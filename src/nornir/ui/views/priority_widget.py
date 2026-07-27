@@ -66,9 +66,7 @@ class PriorityWidget(QWidget):
         """The current top-N active tasks by urgency score (highest first)."""
         today = date.today()
         candidates = self._tasks.list_tasks(statuses=_ACTIVE_STATUSES)
-        ranked = sorted(
-            candidates, key=lambda t: (-urgency_score(t, today), t.id)
-        )
+        ranked = sorted(candidates, key=lambda t: (-urgency_score(t, today), t.id))
         return ranked[:TOP_N]
 
     def refresh(self) -> None:

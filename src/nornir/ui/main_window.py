@@ -24,9 +24,13 @@ APP_NAME = "Nornir"
 LAYOUT_VERSION = 1
 _GEOMETRY_KEY = f"layout/v{LAYOUT_VERSION}/geometry"
 _STATE_KEY = f"layout/v{LAYOUT_VERSION}/state"
+_MODE_KEY = "layout/mode"
 
 #: Debounce for layout auto-save — drag operations fire many change signals.
 _SAVE_DELAY_MS = 1000
+
+#: Sidebar strip dimensions (narrow, tall).
+_SIDEBAR_SIZE = (340, 720)
 
 
 class MainWindow(QMainWindow):
@@ -44,6 +48,10 @@ class MainWindow(QMainWindow):
         self._save_timer.setSingleShot(True)
         self._save_timer.setInterval(_SAVE_DELAY_MS)
         self._save_timer.timeout.connect(self.save_layout)
+        self._mode = "normal"
+        self._sidebar: QWidget | None = None
+        self._view_menu.addSeparator()
+        self._view_menu.addAction("Enter Sidebar Mode", self.enter_sidebar_mode)
 
     # -- dock registration ---------------------------------------------------
 
@@ -72,10 +80,69 @@ class MainWindow(QMainWindow):
     def view_menu(self) -> QMenu:
         return self._view_menu
 
+    # -- sidebar mode (spec: a display mode, not a separate window type) -----
+
+    def set_sidebar_widget(self, widget: QWidget) -> None:
+        """Install the compact strip shown in sidebar mode (hidden for now)."""
+        self._sidebar = widget
+        widget.setVisible(False)
+        self.setCentralWidget(widget)
+
+    def layout_mode(self) -> str:
+        return self._mode
+
+    def enter_sidebar_mode(self, *, save_snapshot: bool = True) -> None:
+        """Collapse to the always-on-top strip.
+
+        ``save_snapshot=False`` is used when re-entering at startup — the
+        stored normal layout must not be overwritten by the default one.
+        """
+        if self._mode == "sidebar":
+            return
+        if save_snapshot:
+            self.save_layout()  # snapshot the normal layout to restore later
+        self._mode = "sidebar"
+        self.menuBar().setVisible(False)
+        for dock in self.findChildren(QDockWidget):
+            dock.setVisible(False)
+        if self._sidebar is not None:
+            self._sidebar.setVisible(True)
+        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        self.resize(*_SIDEBAR_SIZE)
+        self.show()
+        self._app_state.set(_MODE_KEY, "sidebar")
+        self._bus.layout_mode_changed.emit("sidebar")
+
+    def exit_sidebar_mode(self) -> None:
+        """Return to the full multi-pane layout saved on entry."""
+        if self._mode == "normal":
+            return
+        self._mode = "normal"
+        if self._sidebar is not None:
+            self._sidebar.setVisible(False)
+        self.menuBar().setVisible(True)
+        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, False)
+        self.restore_layout()
+        self.show()
+        self._app_state.set(_MODE_KEY, "normal")
+        self._bus.layout_mode_changed.emit("normal")
+
+    def apply_stored_mode(self) -> None:
+        """Start in the mode the app was last closed in (call after docks)."""
+        if self._app_state.get(_MODE_KEY) == "sidebar":
+            self.enter_sidebar_mode(save_snapshot=False)
+
     # -- layout persistence --------------------------------------------------
 
     def save_layout(self) -> None:
-        """Persist geometry + dock arrangement to the database."""
+        """Persist geometry + dock arrangement to the database.
+
+        A no-op while in sidebar mode: the stored layout is always the
+        *normal* arrangement (snapshotted when entering sidebar mode), so a
+        close-from-sidebar must not clobber it with an all-docks-hidden state.
+        """
+        if self._mode == "sidebar":
+            return
         geometry = bytes(self.saveGeometry().toBase64().data()).decode("ascii")
         state = bytes(self.saveState().toBase64().data()).decode("ascii")
         self._app_state.set(_GEOMETRY_KEY, geometry)

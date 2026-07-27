@@ -43,11 +43,16 @@ def test_top3_ordering_matches_score(
     cat = categories.create("C", COLOR)
     today = date.today()
     # scores: HIGH+overdue > HIGH no date > NORMAL due soon > LOW far future
-    tasks.create(cat.id, "low far", priority=Priority.LOW, due_date=today + timedelta(days=60))
+    tasks.create(
+        cat.id, "low far", priority=Priority.LOW, due_date=today + timedelta(days=60)
+    )
     tasks.create(cat.id, "normal soon", due_date=today + timedelta(days=1))
     tasks.create(cat.id, "high nodate", priority=Priority.HIGH)
     tasks.create(
-        cat.id, "high overdue", priority=Priority.HIGH, due_date=today - timedelta(days=2)
+        cat.id,
+        "high overdue",
+        priority=Priority.HIGH,
+        due_date=today - timedelta(days=2),
     )
     widget = PriorityWidget(tasks, categories, bus)
     qtbot.addWidget(widget)
