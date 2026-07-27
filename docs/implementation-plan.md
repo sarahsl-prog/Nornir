@@ -83,14 +83,14 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** `pre-commit run --all-files` passes on the skeleton.
 
 ### 0.3 Logging and app-paths module
-- [ ] `src/nornir/infra/logging.py` — loguru setup: rotating file sink under the app
+- [x] `src/nornir/infra/logging.py` — loguru setup: rotating file sink under the app
   data dir + stderr sink; a `session_id` bound at startup so every record carries it
   (per CLAUDE.md logging rule).
-- [ ] `src/nornir/infra/paths.py` — resolve data dir via `platformdirs`
+- [x] `src/nornir/infra/paths.py` — resolve data dir via `platformdirs`
   (`~/.local/share/nornir/` on Linux/WSL): DB file, log dir, layout/settings storage.
   Overridable via `NORNIR_DATA_DIR` env var (useful for tests and for pointing at a
   copied DB).
-- [ ] Tests: paths resolve, env override works, logging writes a record.
+- [x] Tests: paths resolve, env override works, logging writes a record.
 - **Done when:** unit tests pass; app startup logs a session line to the file sink.
 
 ### 0.4 CI workflow + CodeQL code scanning

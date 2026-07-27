@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import sys
 
+from loguru import logger
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 from nornir import __version__
+from nornir.infra.logging import configure_logging
 
 APP_NAME = "Nornir"
 
@@ -29,6 +31,8 @@ def build_main_window() -> QMainWindow:
 
 def main() -> int:
     """Launch the Qt application and block until it exits."""
+    configure_logging()
+    logger.info("starting {} {}", APP_NAME, __version__)
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     window = build_main_window()
