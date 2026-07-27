@@ -83,5 +83,6 @@ class TestLayoutPersistence:
         self, qtbot: QtBot, conn: sqlite3.Connection
     ) -> None:
         window = build_with_docks(qtbot, conn)
-        titles = [a.text() for a in window.view_menu.actions()]
-        assert titles == ["Tree", "Tasks"]
+        titles = [a.text() for a in window.view_menu.actions() if a.text()]
+        assert "Tree" in titles and "Tasks" in titles
+        assert "Enter Sidebar Mode" in titles

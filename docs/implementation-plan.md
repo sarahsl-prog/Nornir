@@ -335,47 +335,47 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 ## Phase 5 — P1 Features
 
 ### 5.1 Priority Widget
-- [ ] `src/nornir/ui/views/priority_widget.py` — compact dock widget listing top 3
+- [x] `src/nornir/ui/views/priority_widget.py` — compact dock widget listing top 3
   active tasks by `urgency_score` (Phase 1.6); shows title, category color, due
   cue; click → Task Detail. Recomputes on `task_changed` and midnight rollover.
-- [ ] Tests: top-3 ordering matches score function on fixture data.
+- [x] Tests: top-3 ordering matches score function on fixture data.
 - **Done when:** P1 #15 demonstrable.
 
 ### 5.2 Floating Sidebar mode
-- [ ] A display **mode**, not a new window (per spec): `main_window` gains
+- [x] A display **mode**, not a new window (per spec): `main_window` gains
   `enter_sidebar_mode()` — hides docks/menus, shrinks to a narrow always-on-top
   frameless-ish strip hosting the compact task list (and priority top-3), with a
   restore button. Normal layout snapshot saved before entering; restored on exit.
-- [ ] Mode persisted so the app can *start* in sidebar mode if it was closed in it.
-- [ ] Manual validation note: verify always-on-top behavior under WSLg specifically
+- [x] Mode persisted so the app can *start* in sidebar mode if it was closed in it.
+- [x] Manual validation note: verify always-on-top behavior under WSLg specifically
   (Wayland window-manager quirks are the risk here — see 6.2).
-- [ ] Tests: mode round-trip restores the prior dock layout.
+- [x] Tests: mode round-trip restores the prior dock layout.
 - **Done when:** P1 #16 demonstrable.
 
 ### 5.3 Calendar-at-top of creation form
-- [ ] Add `QCalendarWidget` (current month) to the top of the Task Detail window in
+- [x] Add `QCalendarWidget` (current month) to the top of the Task Detail window in
   *creation* mode; clicking a date sets due date (second click convention: first
   click = due; modifier-click = start). Collapsible so the edit form stays compact.
-- [ ] Tests: calendar click updates the date fields.
+- [x] Tests: calendar click updates the date fields.
 - **Done when:** P1 #17 demonstrable.
 
 ### 5.4 Daily summary popup
-- [ ] `src/nornir/services/daily_summary.py` — on a periodic timer (not just launch,
+- [x] `src/nornir/services/daily_summary.py` — on a periodic timer (not just launch,
   per spec — the app may run for days in sidebar mode): if
   `app_state['summary_last_shown'] != today`, show popup (overdue list, due-today,
   due-soon counts) and stamp today. Fires at startup *and* on day rollover while
   running.
-- [ ] Tests: shown once per calendar day across simulated restarts and rollovers.
+- [x] Tests: shown once per calendar day across simulated restarts and rollovers.
 - **Done when:** P1 #18, including the "already shown today" check, demonstrable.
 
 ### 5.5 JSON export/import
-- [ ] `src/nornir/services/json_io.py` — export: nested structure (categories →
+- [x] `src/nornir/services/json_io.py` — export: nested structure (categories →
   sub-categories → tasks → notes) + templates + a `format_version`; stable key
   order for diff-ability (per spec: backup/diff/hand-edit, not migration).
-- [ ] Import: validate against expected shape (reject unknown `format_version`,
+- [x] Import: validate against expected shape (reject unknown `format_version`,
   report per-record errors); import into an **empty** DB only in v1 (merge
   semantics are a can of worms — documented limitation).
-- [ ] Round-trip property test: export → fresh DB → import → export produces
+- [x] Round-trip property test: export → fresh DB → import → export produces
   identical JSON.
 - **Done when:** P1 #19 demonstrable.
 

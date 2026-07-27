@@ -143,12 +143,16 @@ class TestWindowWiring:
         assert detail.task_id == task.id
         assert detail._title.text() == "T"
 
-    def test_all_four_docks_registered(
-        self, qtbot: QtBot, conn: sqlite3.Connection
-    ) -> None:
+    def test_all_docks_registered(self, qtbot: QtBot, conn: sqlite3.Connection) -> None:
         from PySide6.QtWidgets import QDockWidget
 
         window = build_main_window(conn)
         qtbot.addWidget(window)
         names = {d.objectName() for d in window.findChildren(QDockWidget)}
-        assert names == {"dock_tree", "dock_task_list", "dock_timeline", "dock_detail"}
+        assert names == {
+            "dock_tree",
+            "dock_priority",
+            "dock_task_list",
+            "dock_timeline",
+            "dock_detail",
+        }

@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import sqlite3
 import sys
+from datetime import date
+from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import Qt
@@ -18,18 +20,43 @@ from nornir.db.app_state import AppStateRepo
 from nornir.db.category_repo import CategoryRepo
 from nornir.db.connection import connect
 from nornir.db.task_repo import TaskRepo
+from nornir.domain.errors import NornirError
 from nornir.infra import paths
 from nornir.infra.logging import configure_logging
+from nornir.services.daily_summary import build_summary, mark_shown, should_show
+from nornir.services.json_io import export_to_path, import_from_path
 from nornir.ui.dialogs.apply_template import ApplyTemplateDialog
+from nornir.ui.dialogs.daily_summary_dialog import DailySummaryDialog
 from nornir.ui.dialogs.series_dialog import SeriesDialog
 from nornir.ui.dialogs.template_library import TemplateLibraryDialog
 from nornir.ui.events import ALL_CHANGED, EventBus
 from nornir.ui.main_window import APP_NAME, MainWindow
 from nornir.ui.theming import MidnightNotifier
+from nornir.ui.views.priority_widget import PriorityWidget
+from nornir.ui.views.sidebar import SidebarWidget
 from nornir.ui.views.task_detail import TaskDetailWidget
 from nornir.ui.views.task_list import TaskListWidget
 from nornir.ui.views.timeline import TimelineWidget
 from nornir.ui.views.tree_view import TreeViewWidget
+
+
+def show_daily_summary_if_due(conn: sqlite3.Connection, parent: MainWindow) -> bool:
+    """Show the once-per-calendar-day summary popup if it hasn't run today.
+
+    Returns True when the popup was shown. An empty summary still marks the
+    day (no point announcing 'nothing due' — but don't re-check all day).
+    """
+    app_state = AppStateRepo(conn)
+    today = date.today()
+    if not should_show(app_state, today):
+        return False
+    summary = build_summary(TaskRepo(conn), today)
+    mark_shown(app_state, today)
+    if summary.is_empty:
+        return False
+    dialog = DailySummaryDialog(summary, parent)
+    dialog.open()  # window-modal, non-blocking
+    return True
 
 
 def build_main_window(
@@ -50,9 +77,13 @@ def build_main_window(
     detail = TaskDetailWidget(tasks, categories, bus)
     task_list = TaskListWidget(tasks, categories, app_state, bus)
     timeline = TimelineWidget(tasks, categories, bus)
+    priority = PriorityWidget(tasks, categories, bus)
 
     window.add_dock_view(
         "dock_tree", "Tree", tree, Qt.DockWidgetArea.LeftDockWidgetArea
+    )
+    window.add_dock_view(
+        "dock_priority", "Priority", priority, Qt.DockWidgetArea.LeftDockWidgetArea
     )
     window.add_dock_view(
         "dock_task_list", "Tasks", task_list, Qt.DockWidgetArea.RightDockWidgetArea
@@ -70,6 +101,9 @@ def build_main_window(
         detail_dock.raise_()
 
     def open_task(task_id: int) -> None:
+        # activating a task from the sidebar restores the full layout first
+        if window.layout_mode() == "sidebar":
+            window.exit_sidebar_mode()
         detail.load_task(task_id)
         detail_dock.show()
         detail_dock.raise_()
@@ -88,13 +122,58 @@ def build_main_window(
     tree.apply_template_requested.connect(open_apply_template)
     task_list.task_activated.connect(open_task)
     timeline.task_activated.connect(open_task)
+    priority.task_activated.connect(open_task)
 
     templates_menu = window.menuBar().addMenu("&Templates")
     templates_menu.addAction("Manage Templates…", open_template_library)
 
-    # keep derived due states correct across midnight in a long-running app
+    def export_json() -> None:
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        filename, _ = QFileDialog.getSaveFileName(
+            window, "Export JSON backup", "nornir-backup.json", "JSON files (*.json)"
+        )
+        if not filename:
+            return
+        try:
+            export_to_path(conn, Path(filename))
+        except (NornirError, OSError) as error:
+            QMessageBox.warning(window, "Nornir", str(error))
+
+    def import_json() -> None:
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        filename, _ = QFileDialog.getOpenFileName(
+            window, "Import JSON backup", "", "JSON files (*.json)"
+        )
+        if not filename:
+            return
+        try:
+            import_from_path(conn, Path(filename))
+        except NornirError as error:
+            QMessageBox.warning(window, "Nornir", str(error))
+            return
+        bus.category_changed.emit(ALL_CHANGED)
+        bus.task_changed.emit(ALL_CHANGED)
+
+    file_menu = window.menuBar().addMenu("&File")
+    file_menu.addAction("Export JSON Backup…", export_json)
+    file_menu.addAction("Import JSON Backup…", import_json)
+
+    sidebar = SidebarWidget(tasks, categories, bus)
+    window.set_sidebar_widget(sidebar)
+    sidebar.restore_requested.connect(window.exit_sidebar_mode)
+    sidebar.task_activated.connect(open_task)
+
+    # keep derived due states correct across midnight in a long-running app,
+    # and give the daily summary its not-tied-to-launch trigger (P1 #18)
     notifier = MidnightNotifier(window)
-    notifier.day_changed.connect(lambda: bus.task_changed.emit(ALL_CHANGED))
+
+    def on_day_changed() -> None:
+        bus.task_changed.emit(ALL_CHANGED)
+        show_daily_summary_if_due(conn, window)
+
+    notifier.day_changed.connect(on_day_changed)
 
     return window
 
@@ -109,7 +188,9 @@ def main() -> int:
     window = build_main_window(conn)
     if not window.restore_layout():
         logger.info("no stored window layout; using defaults")
+    window.apply_stored_mode()  # may re-enter sidebar mode from last session
     window.show()
+    show_daily_summary_if_due(conn, window)
     try:
         return app.exec()
     finally:
