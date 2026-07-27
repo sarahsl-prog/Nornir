@@ -117,10 +117,14 @@ class TestArchive:
         restored = repo.unarchive(ids[0])
         assert restored == 4
         assert all(c.archived_at is None for c in (repo.get(i) for i in ids))
-        row = conn.execute("SELECT archived_at FROM tasks WHERE id = ?", (task_id,)).fetchone()
+        row = conn.execute(
+            "SELECT archived_at FROM tasks WHERE id = ?", (task_id,)
+        ).fetchone()
         assert row["archived_at"] is None
 
-    def test_unarchive_child_of_archived_parent_refused(self, repo: CategoryRepo) -> None:
+    def test_unarchive_child_of_archived_parent_refused(
+        self, repo: CategoryRepo
+    ) -> None:
         ids = make_chain(repo, 2)
         repo.archive(ids[0])
         with pytest.raises(ValidationError):

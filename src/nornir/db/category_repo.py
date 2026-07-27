@@ -93,7 +93,8 @@ class CategoryRepo:
             WITH RECURSIVE sub(id, h) AS (
                 SELECT id, 1 FROM categories WHERE id = :id
                 UNION ALL
-                SELECT c.id, sub.h + 1 FROM categories c JOIN sub ON c.parent_id = sub.id
+                SELECT c.id, sub.h + 1
+                FROM categories c JOIN sub ON c.parent_id = sub.id
             )
             SELECT MAX(h) FROM sub
             """,

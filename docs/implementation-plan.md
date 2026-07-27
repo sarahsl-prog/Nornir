@@ -150,16 +150,16 @@ Phases 0→4 deliver every P0 requirement. Phase 5 delivers all of P1.
 - **Done when:** all repo tests pass; no SQL lives outside the `db` package.
 
 ### 1.4 Task repository
-- [ ] `src/nornir/db/task_repo.py` — CRUD; validation (title required, both-or-neither
-  recurrence fields, due ≥ start when both set); archive/unarchive; queries: by
-  category (optionally including descendants), by status set, by due-date range,
-  active-only vs include-archived.
-- [ ] `complete_task(task_id)` implements the recurring roll-forward (Assumption 5)
+- [x] `src/nornir/db/task_repo.py` — CRUD; validation (title required, both-or-neither
+  recurrence fields, due ≥ start when both set); archive/unarchive; notes
+  (append/list); queries: by category (optionally including descendants), by status
+  set, by due-date cutoff, active-only vs include-archived.
+- [x] `complete_task(task_id)` implements the recurring roll-forward (Assumption 5)
   in one transaction: mark Complete, and if recurrence set, insert the successor with
-  dates advanced (months advanced via calendar-aware arithmetic — e.g. Jan 31 + 1
-  month → Feb 28, using `calendar`/`dateutil`-style clamping, no naive 30-day adds).
-- [ ] Tests: recurrence roll-forward for days/weeks/months incl. month-end clamping;
-  completion of a non-recurring task creates nothing.
+  dates advanced via `nornir.domain.dates` (calendar-aware month arithmetic — e.g.
+  Jan 31 + 1 month → Feb 28, day clamped to target month length).
+- [x] Tests: recurrence roll-forward for days/weeks/months incl. month-end clamping;
+  completion of a non-recurring task creates nothing; dateless recurring tasks.
 - **Done when:** repo tests pass; recurring behavior matches spec exactly.
 
 ### 1.5 Template repository
