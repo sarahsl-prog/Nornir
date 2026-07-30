@@ -27,38 +27,38 @@ Add a command-line interface to Nornir so an agent (or any shell script) can cre
 
 ## Phase 3: Build the CLI module
 
-### Task 3.1: Create `src/nornir/cli/__init__.py` and `src/nornir/cli/commands.py`
-- [ ] `commands.py` with typed argument parsers for all subcommands
-- [ ] Commands delegate to existing repos (no new storage layer)
-- [ ] Use `argparse` from stdlib, `tabulate` or plain text for list output
-- [ ] Commit
+### Task 3.1: Create `src/nornir/cli/commands.py` and `__init__.py`
+- [x] `commands.py` with typed argument parsers for all subcommands
+- [x] Commands delegate to existing repos (no new storage layer)
+- [x] Use `argparse` from stdlib, plain text for list output
+- [x] Commit
 
 ### Task 3.2: Wire CLI into `app.py` entry point
-- [ ] Modify `main()` to branch: if `--gui` or no subcommand → launch Qt; otherwise → run CLI
-- [ ] Update `pyproject.toml` scripts entry point if needed
-- [ ] Commit
+- [x] Modify `main()` to branch: if a CLI subcommand is detected → run CLI; otherwise → launch Qt
+- [x] Update `pyproject.toml` scripts entry point if needed
+- [x] Commit
 
 ## Phase 4: Write CLI tests
 
 ### Task 4.1: Add `tests/test_cli.py`
-- [ ] Test `add-task` creates a task and it appears in the database
-- [ ] Test `list-tasks` with various filters
-- [ ] Test `complete-task` marks a task complete
-- [ ] Test `archive-task` archives a task
-- [ ] Test `daily-summary` returns text output
-- [ ] Run full test suite
-- [ ] Commit
+- [x] Test `add-task` creates a task and it appears in the database
+- [x] Test `list-tasks` with various filters
+- [x] Test `complete-task` marks a task complete
+- [x] Test `archive-task` archives a task
+- [x] Test `daily-summary` returns text output
+- [x] Run full test suite
+- [x] Commit
 
 ## Phase 5: Update documentation
 
 ### Task 5.1: Update `README.md`
-- [ ] Add "CLI usage" section with examples for each command
-- [ ] Mention WAL mode and coexistence with the GUI
-- [ ] Commit
+- [x] Add "CLI usage" section with examples for each command
+- [x] Mention WAL mode and coexistence with the GUI
+- [x] Commit
 
 ### Task 5.2: Update `CLAUDE.md`
-- [ ] Add CLI commands to the Coding Process / Build section
-- [ ] Commit
+- [x] Add CLI commands to the Coding Process / Build section
+- [x] Commit
 
 ## Phase 6: Final verification
 - [ ] Run `pre-commit run --all-files`

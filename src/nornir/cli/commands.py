@@ -15,10 +15,9 @@ Usage examples::
 from __future__ import annotations
 
 import argparse
-import sys
+from collections.abc import Callable, Sequence
 from datetime import date
 from pathlib import Path
-from typing import Sequence
 
 from loguru import logger
 
@@ -88,7 +87,9 @@ def cmd_list_tasks(args: argparse.Namespace) -> int:
     for task in rows:
         cat = cat_by_id.get(task.category_id, "?")
         due = task.due_date.isoformat() if task.due_date else "—"
-        print(f"{task.id:>4} │ {task.status.value:<11} │ {due:<10} │ [{cat}] {task.title}")
+        print(
+            f"{task.id:>4} │ {task.status.value:<11} │ {due:<10} │ [{cat}] {task.title}"
+        )
     conn.close()
     return 0
 
@@ -153,7 +154,9 @@ def build_parser() -> argparse.ArgumentParser:
     add.add_argument("--description", default="")
     add.add_argument("--due", type=_date, default=None)
     add.add_argument("--start", type=_date, default=None)
-    add.add_argument("--priority", choices=[p.value for p in Priority], default="normal")
+    add.add_argument(
+        "--priority", choices=[p.value for p in Priority], default="normal"
+    )
     add.add_argument("--status", choices=[s.value for s in TaskStatus], default="open")
     add.set_defaults(func=cmd_add_task)
 
@@ -195,4 +198,5 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     logger.remove()
-    return args.func(args)
+    func: Callable[[argparse.Namespace], int] = args.func
+    return func(args)

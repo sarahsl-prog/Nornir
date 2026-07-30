@@ -75,8 +75,30 @@ pip install -r requirements.txt
 # Install (offline — work environment)
 pip install --no-index --find-links=./wheelhouse -r requirements.txt
 
-# Run
+# Run (GUI)
 python3 app.py
+```
+
+## CLI usage
+
+The same entry point supports subcommands for agent/script access.  The CLI
+and the GUI share the same SQLite database (WAL mode allows safe concurrency).
+
+```bash
+# Create a task (category name or id)
+nornir add-task --title "Call dentist" --category "Personal" --due 2026-08-05
+
+# List tasks (filtered)
+nornir list-tasks --category "Work" --status open in_progress
+
+# Complete a task (triggers recurrence roll-forward if applicable)
+nornir complete-task 42
+
+# Archive a task
+nornir archive-task 42
+
+# Daily summary (text output for agent consumption)
+nornir daily-summary
 ```
 
 ## Project Structure
@@ -111,6 +133,7 @@ nornir/
 - [x] Floating Sidebar mode
 - [x] Daily summary popup
 - [x] JSON export/import
+- [x] CLI commands (agent-accessible task creation)
 - [ ] Voice input (task creation + notes)
 - [ ] Agent/API task creation (external agents like Skadi-Agents/Augur filing tasks programmatically)
 

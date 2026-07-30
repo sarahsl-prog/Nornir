@@ -41,7 +41,6 @@ from nornir.ui.views.task_list import TaskListWidget
 from nornir.ui.views.timeline import TimelineWidget
 from nornir.ui.views.tree_view import TreeViewWidget
 
-
 #: Subcommands that should be dispatched to the CLI instead of launching Qt.
 _CLI_COMMANDS = {
     "add-task",
