@@ -16,6 +16,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from nornir import __version__
+from nornir.cli.commands import main as cli_main
 from nornir.db.app_state import AppStateRepo
 from nornir.db.category_repo import CategoryRepo
 from nornir.db.connection import connect
@@ -39,6 +40,16 @@ from nornir.ui.views.task_detail import TaskDetailWidget
 from nornir.ui.views.task_list import TaskListWidget
 from nornir.ui.views.timeline import TimelineWidget
 from nornir.ui.views.tree_view import TreeViewWidget
+
+
+#: Subcommands that should be dispatched to the CLI instead of launching Qt.
+_CLI_COMMANDS = {
+    "add-task",
+    "list-tasks",
+    "complete-task",
+    "archive-task",
+    "daily-summary",
+}
 
 
 def show_daily_summary_if_due(conn: sqlite3.Connection, parent: MainWindow) -> bool:
@@ -180,7 +191,14 @@ def build_main_window(
 
 
 def main() -> int:
-    """Launch the Qt application and block until it exits."""
+    """Launch Qt or dispatch to the CLI depending on argv."""
+    # If the first positional arg is a known CLI subcommand, run CLI.
+    for arg in sys.argv[1:]:
+        if not arg.startswith("-"):
+            if arg in _CLI_COMMANDS:
+                return cli_main(sys.argv[1:])
+            break
+
     configure_logging()
     logger.info("starting {} {}", APP_NAME, __version__)
     app = QApplication(sys.argv)

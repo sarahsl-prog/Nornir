@@ -20,10 +20,10 @@ Add a command-line interface to Nornir so an agent (or any shell script) can cre
 ## Phase 2: Add category lookup by name
 
 ### Task 2.1: Add `get_by_name()` to `CategoryRepo`
-- [ ] Implement `get_by_name(name: str) -> Category | None`
-- [ ] Write unit test
-- [ ] Run tests, verify pass
-- [ ] Commit
+- [x] Implement `get_by_name(name: str) -> Category | None`
+- [x] Write unit test
+- [x] Run tests, verify pass
+- [x] Commit
 
 ## Phase 3: Build the CLI module
 
