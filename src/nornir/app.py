@@ -31,6 +31,7 @@ from nornir.ui.dialogs.series_dialog import SeriesDialog
 from nornir.ui.dialogs.template_library import TemplateLibraryDialog
 from nornir.ui.events import ALL_CHANGED, EventBus
 from nornir.ui.main_window import APP_NAME, MainWindow
+from nornir.ui.theme_engine import apply_theme
 from nornir.ui.theming import MidnightNotifier
 from nornir.ui.views.priority_widget import PriorityWidget
 from nornir.ui.views.sidebar import SidebarWidget
@@ -184,6 +185,7 @@ def main() -> int:
     logger.info("starting {} {}", APP_NAME, __version__)
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
+    apply_theme(app)
     conn = connect(paths.db_path())
     window = build_main_window(conn)
     if not window.restore_layout():
