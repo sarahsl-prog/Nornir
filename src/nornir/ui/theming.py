@@ -15,11 +15,11 @@ from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 
 from nornir.domain.urgency import DueState
 
-#: Distinct, colorblind-considered cues: overdue = red circle, due-soon =
-#: amber triangle-ish dot. Shape difference comes from size/ring styling.
+#: Distinct, colorblind-considered cues for the dark purple theme.
+#: Overdue = bright magenta-red, due-soon = electric amber.
 DUE_STATE_COLORS: dict[DueState, str | None] = {
-    DueState.OVERDUE: "#D32F2F",
-    DueState.DUE_SOON: "#F9A825",
+    DueState.OVERDUE: "#ff4081",
+    DueState.DUE_SOON: "#ffd740",
     DueState.NONE: None,
 }
 
@@ -57,7 +57,10 @@ def _circle_icon(color_hex: str, *, ring: bool) -> QIcon:
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     color = QColor(color_hex)
     painter.setBrush(color)
-    painter.setPen(color.darker(150) if ring else Qt.PenStyle.NoPen)
+    if ring:
+        painter.setPen(QColor("#ff80ab"))
+    else:
+        painter.setPen(Qt.PenStyle.NoPen)
     painter.drawEllipse(QRect(1, 1, _ICON_SIZE - 2, _ICON_SIZE - 2))
     painter.end()
     icon = QIcon(pixmap)

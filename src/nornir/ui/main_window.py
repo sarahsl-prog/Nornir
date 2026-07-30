@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import QByteArray, Qt, QTimer
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtWidgets import QDockWidget, QMainWindow, QMenu, QWidget
+from PySide6.QtWidgets import QApplication, QDockWidget, QMainWindow, QMenu, QWidget
 
 from nornir import __version__
 from nornir.db.app_state import AppStateRepo
@@ -107,9 +107,23 @@ class MainWindow(QMainWindow):
             dock.setVisible(False)
         if self._sidebar is not None:
             self._sidebar.setVisible(True)
+            self._sidebar.setAutoFillBackground(True)
+        # Destroy the native window and recreate it to avoid compositor
+        # artifacts.  Shrink to 1×1 first so the compositor repaints the
+        # desktop where the large window was, *then* hide, flip the flag,
+        # resize to the strip, and show.
+        self.resize(1, 1)
+        self.hide()
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.resize(*_SIDEBAR_SIZE)
+        if (app := QApplication.instance()) is not None:
+            app.processEvents()
         self.show()
+        self.raise_()
+        self.activateWindow()
+        # Force the compositor to acknowledge the new geometry before we return.
+        if (app := QApplication.instance()) is not None:
+            app.processEvents()
         self._app_state.set(_MODE_KEY, "sidebar")
         self._bus.layout_mode_changed.emit("sidebar")
 
@@ -121,9 +135,15 @@ class MainWindow(QMainWindow):
         if self._sidebar is not None:
             self._sidebar.setVisible(False)
         self.menuBar().setVisible(True)
+        self.resize(1, 1)
+        self.hide()
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, False)
         self.restore_layout()
+        if (app := QApplication.instance()) is not None:
+            app.processEvents()
         self.show()
+        self.raise_()
+        self.activateWindow()
         self._app_state.set(_MODE_KEY, "normal")
         self._bus.layout_mode_changed.emit("normal")
 

@@ -101,7 +101,8 @@ class TaskListWidget(QWidget):
         bar.addWidget(self._archived_check)
         bar.addStretch(1)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(6)
         layout.addLayout(bar)
         layout.addWidget(self._table)
 
