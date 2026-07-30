@@ -27,6 +27,14 @@ A personal, offline-first, multi-window task tracker built around a category tre
 
 - **Planning & Discovery** - Read the task, scan the codebase, and build an initial plan based on the task specification and how to verify the solution.
 - **Build** - Implement the plan with verification in mind. Build tests, if they don’t exist and test both happy paths and edge cases.
+- **CLI commands** — The same entry point supports subcommands for agent/script access:
+  ```bash
+  nornir add-task --title "T" --category "C" [--due YYYY-MM-DD]
+  nornir list-tasks [--category "C"] [--status open in_progress]
+  nornir complete-task <id>
+  nornir archive-task <id>
+  nornir daily-summary
+  ```
 - **Verify** - Run tests, read the full output, compare against what was asked (not against your own code).
 - **Fix** - Analyze any errors, revisit the original spec, and fix issues.
 

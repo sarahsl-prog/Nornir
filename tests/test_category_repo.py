@@ -61,6 +61,19 @@ class TestCrud:
         assert names.index("A") < names.index("B")
         assert first.position < second.position
 
+    def test_get_by_name(self, repo: CategoryRepo) -> None:
+        cat = repo.create("Homelab", COLOR)
+        found = repo.get_by_name("Homelab")
+        assert found is not None and found.id == cat.id
+
+    def test_get_by_name_missing(self, repo: CategoryRepo) -> None:
+        assert repo.get_by_name("Nope") is None
+
+    def test_get_by_name_archived_not_found(self, repo: CategoryRepo) -> None:
+        cat = repo.create("Homelab", COLOR)
+        repo.archive(cat.id)
+        assert repo.get_by_name("Homelab") is None
+
 
 class TestDepthLimit:
     def test_depth_of_chain(self, repo: CategoryRepo) -> None:

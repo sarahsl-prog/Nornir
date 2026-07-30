@@ -74,9 +74,51 @@ pip install -r requirements.txt
 
 # Install (offline — work environment)
 pip install --no-index --find-links=./wheelhouse -r requirements.txt
+```
 
-# Run
+## Running
+
+### GUI (Qt)
+
+```bash
+# Quick launch without installing the package
 python3 app.py
+
+# Or, after installing the package into the venv
+nornir
+```
+
+### CLI (agent / script access)
+
+The same entry point supports subcommands.  The CLI and the GUI share the same
+SQLite database (WAL mode allows safe concurrency).
+
+```bash
+# Via the launcher shim (no package install needed)
+python3 app.py add-task --title "Call dentist" --category "Personal" --due 2026-08-05
+python3 app.py list-tasks --category "Work" --status open in_progress
+
+# Or via the installed `nornir` command (after `uv pip install -e .` or equivalent)
+nornir add-task --title "Call dentist" --category "Personal" --due 2026-08-05
+nornir list-tasks --category "Work" --status open in_progress
+nornir list-categories                   # show the category tree
+nornir complete-task 42
+nornir archive-task 42
+nornir daily-summary
+```
+
+**Note:** `python3 app.py` only routes to CLI mode when a known subcommand is
+detected as the first positional argument.  Running `python3 app.py` with no
+arguments (or with unknown arguments) still launches the GUI.
+
+To get the `nornir` command in your shell:
+
+```bash
+# Option A — install the package into the venv (creates .venv/bin/nornir)
+uv pip install -e . --python .venv/bin/python
+
+# Option B — add .venv/bin to your PATH in ~/.bashrc
+export PATH="$HOME/Code/Nornir/.venv/bin:$PATH"
 ```
 
 ## Project Structure
@@ -111,6 +153,7 @@ nornir/
 - [x] Floating Sidebar mode
 - [x] Daily summary popup
 - [x] JSON export/import
+- [x] CLI commands (agent-accessible task creation)
 - [ ] Voice input (task creation + notes)
 - [ ] Agent/API task creation (external agents like Skadi-Agents/Augur filing tasks programmatically)
 
