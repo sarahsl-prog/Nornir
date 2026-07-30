@@ -72,6 +72,16 @@ class CategoryRepo:
         ).fetchone()
         return int(row[0])
 
+    def get_by_name(self, name: str) -> Category | None:
+        """Return the active category with the given name, or None."""
+        row = self._conn.execute(
+            "SELECT * FROM categories WHERE name = ? AND archived_at IS NULL",
+            (name,),
+        ).fetchone()
+        if row is None:
+            return None
+        return category_from_row(row)
+
     def subtree_ids(self, category_id: int) -> list[int]:
         """The category and all its descendants (archived included)."""
         rows = self._conn.execute(
