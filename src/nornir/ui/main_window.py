@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
             self._sidebar.setVisible(True)
             self._sidebar.setAutoFillBackground(True)
         # Destroy the native window and recreate it to avoid compositor
-        # artifacts.  Shrink to 1×1 first so the compositor repaints the
+        # artifacts.  Shrink to 1x1 first so the compositor repaints the
         # desktop where the large window was, *then* hide, flip the flag,
         # resize to the strip, and show.
         self.resize(1, 1)
