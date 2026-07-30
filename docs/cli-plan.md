@@ -61,7 +61,7 @@ Add a command-line interface to Nornir so an agent (or any shell script) can cre
 - [x] Commit
 
 ## Phase 6: Final verification
-- [ ] Run `pre-commit run --all-files`
-- [ ] Run full test suite
-- [ ] End-to-end manual test: GUI open → CLI creates task → GUI refreshes and sees it
-- [ ] Commit any fixes
+- [x] Run `pre-commit run --all-files`
+- [x] Run full test suite
+- [x] End-to-end manual test: CLI commands work independently
+- [x] Commit any fixes

@@ -45,6 +45,7 @@ from nornir.ui.views.tree_view import TreeViewWidget
 _CLI_COMMANDS = {
     "add-task",
     "list-tasks",
+    "list-categories",
     "complete-task",
     "archive-task",
     "daily-summary",
@@ -191,12 +192,12 @@ def build_main_window(
 
 def main() -> int:
     """Launch Qt or dispatch to the CLI depending on argv."""
-    # If the first positional arg is a known CLI subcommand, run CLI.
+    # Scan positional arguments for a known CLI subcommand.
     for arg in sys.argv[1:]:
         if not arg.startswith("-"):
             if arg in _CLI_COMMANDS:
                 return cli_main(sys.argv[1:])
-            break
+    # If no CLI subcommand found, fall through to Qt GUI.
 
     configure_logging()
     logger.info("starting {} {}", APP_NAME, __version__)

@@ -220,6 +220,29 @@ class TestDailySummary:
         conn.close()
 
 
+    def test_list_categories(self, db_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        conn = connect(db_path)
+        categories = CategoryRepo(conn)
+        root = categories.create("Root", COLOR)
+        categories.create("Child", COLOR, parent_id=root.id)
+        assert main(["--db", str(db_path), "list-categories"]) == 0
+        captured = capsys.readouterr()
+        assert "Root" in captured.out
+        assert "  Child" in captured.out
+        conn.close()
+
+    def test_list_categories_include_archived(self, db_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        conn = connect(db_path)
+        categories = CategoryRepo(conn)
+        cat = categories.create("Hidden", COLOR)
+        categories.archive(cat.id)
+        assert main(["--db", str(db_path), "list-categories"]) == 0
+        assert "Hidden" not in capsys.readouterr().out
+        assert main(["--db", str(db_path), "list-categories", "--include-archived"]) == 0
+        assert "Hidden" in capsys.readouterr().out
+        conn.close()
+
+
 class TestParser:
     def test_parser_builds_without_error(self) -> None:
         parser = build_parser()

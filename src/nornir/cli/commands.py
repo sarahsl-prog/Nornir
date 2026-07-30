@@ -24,7 +24,7 @@ from loguru import logger
 from nornir.db.category_repo import CategoryRepo
 from nornir.db.connection import connect
 from nornir.db.task_repo import TaskRepo
-from nornir.domain.models import Priority, TaskStatus
+from nornir.domain.models import Category, Priority, TaskStatus
 from nornir.infra import paths
 from nornir.services.daily_summary import build_summary
 
@@ -136,6 +136,29 @@ def cmd_daily_summary(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cat_depth(category_id: int, lookup: dict[int, Category]) -> int:
+    """Return the depth of a category in the tree (1 = top level)."""
+    depth = 0
+    node: Category | None = lookup.get(category_id)
+    while node is not None:
+        depth += 1
+        node = lookup.get(node.parent_id) if node.parent_id else None
+    return depth
+
+
+def cmd_list_categories(args: argparse.Namespace) -> int:
+    conn = connect(args.db or paths.db_path())
+    categories = CategoryRepo(conn).get_tree(include_archived=args.include_archived)
+    lookup: dict[int, Category] = {c.id: c for c in categories}
+    for cat in categories:
+        depth = _cat_depth(cat.id, lookup)
+        indent = "  " * (depth - 1)
+        archived = " [archived]" if cat.archived_at else ""
+        print(f"{indent}{cat.name}{archived}")
+    conn.close()
+    return 0
+
+
 # ── parser wiring ────────────────────────────────────────────────────────────
 
 
@@ -168,6 +191,11 @@ def build_parser() -> argparse.ArgumentParser:
     ls.add_argument("--include-archived", action="store_true")
     ls.set_defaults(func=cmd_list_tasks)
 
+    # list-categories
+    cats = sub.add_parser("list-categories", help="List category tree")
+    cats.add_argument("--include-archived", action="store_true")
+    cats.set_defaults(func=cmd_list_categories)
+
     # complete-task
     done = sub.add_parser("complete-task", help="Mark a task complete")
     done.add_argument("task_id", type=int)
@@ -188,6 +216,7 @@ def build_parser() -> argparse.ArgumentParser:
 _DISPATCH: dict[str, str] = {
     "add-task": "add_task",
     "list-tasks": "list_tasks",
+    "list-categories": "list_categories",
     "complete-task": "complete_task",
     "archive-task": "archive_task",
     "daily-summary": "daily_summary",
